@@ -132,12 +132,12 @@ int main(void) {
 
             // обновление монет
             for (int i = 0; i < countMoney; i++) {
-                updateMoney(&arrayMoney[i], player.position.x, player.position.y, 16, i);
+                updateMoney(&arrayMoney[i], player.position.x, player.position.y, 14);
             }
             removeInactiveMoney();
 
             for (int i = 0; i < countSlime; i++) {
-               updateSlime(&arraySlime[i]);
+               updateSlime(&arraySlime[i], player.position.x, player.position.y, 14);
             }
 
             BeginDrawing();

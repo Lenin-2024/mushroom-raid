@@ -19,7 +19,7 @@ extern Texture2D textureMoneyPickUp;
 extern Rectangle frameRectMoney;
 
 void initializeMoney(float x, float y, Money *money);
-void updateMoney(Money *money, float playerX, float playerY, int playerTileSize, int id);
+void updateMoney(Money *money, float playerX, float playerY, int playerTileSize);
 void drawMoney(Money *money);
 void unloadMoneyTexture();
 

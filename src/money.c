@@ -34,7 +34,7 @@ void initializeMoney(float x, float y, Money *money) {
     };
 }
 
-void updateMoney(Money *money, float playerX, float playerY, int playerTileSize, int id) {
+void updateMoney(Money *money, float playerX, float playerY, int playerTileSize) {
     float speedAnimationIdle = 0.08f;
     float speedAnimationPickUp = 0.1f;
 

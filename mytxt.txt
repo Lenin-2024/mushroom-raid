@@ -3,4 +3,4 @@ misha@misha:~/Рабочий стол/myC/test$ gcc -Wall -I"/home/misha/Раб�
 
 gcc -Wall -I"/home/misha/Рабочий стол/myC/test/raylib/include" -L"/home/misha/Рабочий стол/myC/test/raylib/src" -o tmp tileMapEditor.c -lraylib -lm -lpthread -ldl -lrt -lX11
 
-600 строчки кода
+800 строчек кода

@@ -92,24 +92,26 @@ void updatePlayer(Player *player, float speed, int **map, int tileSize) {
     collision(player, map, 1, tileSize);
 
     // анимации
-    if (player->velocity.x != 0 && player->onGround == 1) {
-        frameCounter += GetFrameTime();
-        if (frameCounter >= frameSpeedRun) {
-            player->currentFrame++;
-            if (player->currentFrame >= maxFrameRun) {
-                player->currentFrame = 0;
+    if (player->onGround == 1) {
+        if (player->velocity.x != 0) {
+            frameCounter += GetFrameTime();
+            if (frameCounter >= frameSpeedRun) {
+                player->currentFrame++;
+                if (player->currentFrame >= maxFrameRun) {
+                    player->currentFrame = 0;
+                }
+                frameCounter = 0;
             }
-            frameCounter = 0;
-        }
-    } else if (player->velocity.x == 0 && player->onGround == 1) {
-        frameCounter += GetFrameTime();
-        if (frameCounter >= frameSpeedIdle) {
-            player->currentFrame++;
-            if (player->currentFrame >= maxFrameIdle) {
-                player->currentFrame = 0;
+        }  else if (player->velocity.x == 0) {
+            frameCounter += GetFrameTime();
+            if (frameCounter >= frameSpeedIdle) {
+                player->currentFrame++;
+                if (player->currentFrame >= maxFrameIdle) {
+                    player->currentFrame = 0;
+                }
+                frameCounter = 0;
             }
-            frameCounter = 0;
-        }
+        } 
     } else {
         if (player->velocity.y > 0) {
             frameCounter += GetFrameTime();
@@ -167,9 +169,9 @@ void collision(Player *player, int **map, int dir, int tileSize) {
 }
 
 void drawPlayer(Player *player) {
-    printf("ground = %d\n", player->onGround);
+    //DrawRectangle(player->position.x, player->position.y, playerTileSize, playerTileSize, RED);
     frameRect.width = player->flip ? -fabs(frameRect.width) : fabs(frameRect.width);
-    
+
     if (player->onGround == 1) {
         if (player->velocity.x != 0) {
             frameRect.x = (float)player->currentFrame * (float)textureRun.width / maxFrameRun;

@@ -44,15 +44,22 @@ void initializeSlime(float x, float y, Slime *slime) {
     };
 }
 
-void updateSlime(Slime *slime) {
+void updateSlime(Slime *slime, float playerX, float playerY, int playerTileSize) {
     const float frameSpeedRun = 0.05f;
     const float frameSpeedIdle = 0.08f;
 
-    slime->velocity.x += 0.002;
+    //slime->velocity.x += 0.001;
+    
+    printf("x : y = (%f : %f); px : py = (%f : %f)\n", slime->position.x, slime->position.y, playerX, playerY);
+    
+    if (playerX + playerTileSize > slime->position.x && playerX < slime->position.x + slimeTileSize &&
+        playerY + playerTileSize > slime->position.y && playerY < slime->position.y + slimeTileSize ) {
+            puts("CLLISION");
+    }
+    
     if (slime->velocity.x > 0) {
         slime->flip = 1;
-    }
-    else if (slime->velocity.x < 0) {
+    } else if (slime->velocity.x < 0) {
         slime->flip = 0;
     }
 
@@ -82,7 +89,7 @@ void updateSlime(Slime *slime) {
 }
 
 void drawSlime(Slime *slime) {
-    DrawRectangle(slime->position.x, slime->position.y, slimeTileSize, slimeTileSize, RED);
+    //DrawRectangle(slime->position.x, slime->position.y, slimeTileSize, slimeTileSize, RED);
     if (slime->velocity.x != 0) {
         frameRectSlimeRun.width = slime->flip ? -fabs(frameRectSlimeRun.width) : fabs(frameRectSlimeRun.width);
         frameRectSlimeRun.x = (float)slime->currentFrame * (float)textureSlimeRun.width / maxFrameSlimeRun;
@@ -97,4 +104,5 @@ void drawSlime(Slime *slime) {
 
 void unloadSlimeTexture() {
     UnloadTexture(textureSlimeIdle);
+    UnloadTexture(textureSlimeRun);
 }

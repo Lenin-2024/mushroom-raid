@@ -25,7 +25,7 @@ extern Rectangle frameRectSlimeRun;
 extern Rectangle frameRectSlimeIdle;
 
 void initializeSlime(float x, float y, Slime *slime);
-void updateSlime(Slime *slime);
+void updateSlime(Slime *slime, float playerX, float playerY, int playerTileSize);
 void drawSlime(Slime *slime);
 
 #endif
