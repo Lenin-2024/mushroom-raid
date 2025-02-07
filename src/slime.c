@@ -12,7 +12,8 @@ const int maxFrameSlimeDeath = 6;
 Texture2D textureSlimeIdle;
 Texture2D textureSlimeRun;
 Texture2D textureSlimeDeath;
-Rectangle frameRectSlime;
+Rectangle frameRectSlimeRun;
+Rectangle frameRectSlimeIdle;
 
 void initializeSlime(float x, float y, Slime *slime) {
     slime->position = (Vector2){x, y};
@@ -32,9 +33,14 @@ void initializeSlime(float x, float y, Slime *slime) {
         exit(1);
     }
 
-    frameRectSlime = (Rectangle) {
+    frameRectSlimeRun = (Rectangle) {
         0.0f, 0.0f,
-        (float)textureSlimeRun.width / maxFrameSlimeRun, (float)textureSlimeRun.height 
+        (float)textureSlimeRun.width / maxFrameSlimeRun, (float)textureSlimeRun.height
+    };
+
+    frameRectSlimeIdle = (Rectangle) {
+        0.0f, 0.0f,
+        (float)textureSlimeIdle.width / maxFrameSlimeIdle, (float)textureSlimeIdle.height
     };
 }
 
@@ -73,19 +79,19 @@ void updateSlime(Slime *slime) {
             slime->frameCounter = 0;
         }
     }
-
 }
 
 void drawSlime(Slime *slime) {
-    //DrawRectangle(slime->position.x, slime->position.y, slimeTileSize, slimeTileSize, RED);
-    frameRectSlime.width = slime->flip ? -fabs(frameRectSlime.width) : fabs(frameRectSlime.width);
+    DrawRectangle(slime->position.x, slime->position.y, slimeTileSize, slimeTileSize, RED);
     if (slime->velocity.x != 0) {
-        frameRectSlime.x = (float)slime->currentFrame * (float)textureSlimeRun.width / maxFrameSlimeRun;
-        DrawTextureRec(textureSlimeRun, frameRectSlime, (Vector2){slime->position.x, slime->position.y - (slimeTileSize / 2)}, WHITE);
+        frameRectSlimeRun.width = slime->flip ? -fabs(frameRectSlimeRun.width) : fabs(frameRectSlimeRun.width);
+        frameRectSlimeRun.x = (float)slime->currentFrame * (float)textureSlimeRun.width / maxFrameSlimeRun;
+        DrawTextureRec(textureSlimeRun, frameRectSlimeRun, (Vector2){slime->position.x, slime->position.y - (slimeTileSize / 2)}, WHITE);
     }
     else if (slime->velocity.x == 0) {
-        frameRectSlime.x = (float)slime->currentFrame * (float)textureSlimeIdle.width / maxFrameSlimeIdle;
-        DrawTextureRec(textureSlimeIdle, frameRectSlime, (Vector2){slime->position.x, slime->position.y - (16 - slimeTileSize)}, WHITE);
+        frameRectSlimeIdle.width = slime->flip ? -fabs(frameRectSlimeIdle.width) : fabs(frameRectSlimeIdle.width);
+        frameRectSlimeIdle.x = (float)slime->currentFrame * (float)textureSlimeIdle.width / maxFrameSlimeIdle;
+        DrawTextureRec(textureSlimeIdle, frameRectSlimeIdle, (Vector2){slime->position.x, slime->position.y - (16 - slimeTileSize)}, WHITE);
     }
 }
 

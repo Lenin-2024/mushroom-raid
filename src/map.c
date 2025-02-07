@@ -30,7 +30,7 @@ void drawMap(int **map, int xMax, int yMax, int backGroundSize, int size, Textur
             Vector2 position = { x * backGroundSize, y * backGroundSize };
             int tileType = map[y][x];
 
-            if (tileType > 0 && tileType <= size /*sizeof(arrayGround)/sizeof(arrayGround[0])*/) {
+            if (tileType > 0 && tileType <= size) {
                 DrawTextureRec(textureGround, arrayGround[tileType - 1], position, WHITE);
             }
         }

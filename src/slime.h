@@ -21,7 +21,8 @@ extern const int maxFrameSlimeDeath;
 extern Texture2D textureSlimeIdle;
 extern Texture2D textureSlimeRun;
 extern Texture2D textureSlimeDeath;
-extern Rectangle frameRectSlime;
+extern Rectangle frameRectSlimeRun;
+extern Rectangle frameRectSlimeIdle;
 
 void initializeSlime(float x, float y, Slime *slime);
 void updateSlime(Slime *slime);

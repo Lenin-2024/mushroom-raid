@@ -138,7 +138,6 @@ int main(void) {
 
             for (int i = 0; i < countSlime; i++) {
                updateSlime(&arraySlime[i]);
-               printf("x : y = %f : %f\n", arraySlime[i].position.x, arraySlime[i].position.y);
             }
 
             BeginDrawing();
@@ -197,7 +196,7 @@ void initTexture() {
     midground = LoadTexture("resource/tiles and background_foreground (new)/bg_0.png");
     foreground = LoadTexture("resource/tiles and background_foreground (new)/bg_1.png");
     textureGround = LoadTexture("resource/tiles and background_foreground (new)/tileset.png");
-    
+
     for (int y = 0; y < 3; y++) {
         for (int x = 0; x < 6; x++) {
 
