@@ -1,0 +1,6 @@
+misha@misha:~/Рабочий стол/myC/test$ gcc -Wall -I"/home/misha/Рабочий стол/myC/test/raylib/build/raylib/include" -L"/home/misha/Рабочий стол/myC/test/raylib/src" -o my_project main.c -lraylib -lm -lpthread -ldl -lrt -lX11
+
+
+gcc -Wall -I"/home/misha/Рабочий стол/myC/test/raylib/include" -L"/home/misha/Рабочий стол/myC/test/raylib/src" -o tmp tileMapEditor.c -lraylib -lm -lpthread -ldl -lrt -lX11
+
+600 строчки кода
