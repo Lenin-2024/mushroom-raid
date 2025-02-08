@@ -44,7 +44,7 @@ void initializeSlime(float x, float y, Slime *slime) {
     };
 }
 
-void updateSlime(Slime *slime, float playerX, float playerY, int playerTileSize) {
+void updateSlime(Slime *slime, float playerX, float playerY, float *velocityY, float playerJumpHeight, int playerTileSize) {
     const float frameSpeedRun = 0.05f;
     const float frameSpeedIdle = 0.08f;
 
@@ -53,10 +53,11 @@ void updateSlime(Slime *slime, float playerX, float playerY, int playerTileSize)
     printf("x : y = (%f : %f); px : py = (%f : %f)\n", slime->position.x, slime->position.y, playerX, playerY);
     
     if (playerX + playerTileSize > slime->position.x && playerX < slime->position.x + slimeTileSize &&
-        playerY + playerTileSize > slime->position.y && playerY < slime->position.y + slimeTileSize ) {
+        playerY + playerTileSize > slime->position.y && playerY + playerTileSize < slime->position.y + 4) {
             puts("CLLISION");
+            *velocityY = -playerJumpHeight;
     }
-    
+ 
     if (slime->velocity.x > 0) {
         slime->flip = 1;
     } else if (slime->velocity.x < 0) {
@@ -89,7 +90,7 @@ void updateSlime(Slime *slime, float playerX, float playerY, int playerTileSize)
 }
 
 void drawSlime(Slime *slime) {
-    //DrawRectangle(slime->position.x, slime->position.y, slimeTileSize, slimeTileSize, RED);
+    //DrawRectangle(slime->position.x, slime->position.y + 4, slimeTileSize, 5, RED);
     if (slime->velocity.x != 0) {
         frameRectSlimeRun.width = slime->flip ? -fabs(frameRectSlimeRun.width) : fabs(frameRectSlimeRun.width);
         frameRectSlimeRun.x = (float)slime->currentFrame * (float)textureSlimeRun.width / maxFrameSlimeRun;

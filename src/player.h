@@ -11,7 +11,6 @@ extern Texture2D textureIdle;
 extern Texture2D textureFall;
 extern Texture2D textureJump;
 
-extern const int playerTileSize;
 extern const int maxFrameRun;
 extern const int maxFrameIdle;
 extern const int maxFrameJump;
@@ -21,6 +20,8 @@ extern const float gravity;
 typedef struct Player {
     Vector2 position;
     Vector2 velocity;
+    float jumpHeight;
+    int tileSize;
     int health;
     int currentFrame;
     int flip;

@@ -4,14 +4,11 @@
 #include "raylib.h"
 #include "player.h"
 
-const int playerTileSize = 14;
-
 const int maxFrameRun = 6;
 const int maxFrameIdle = 4;
 const int maxFrameJump = 3;
 const int maxFrameFall = 3;
 const float gravity = 0.05f;
-float jumpHeight = 1.5f;
 
 Texture2D textureRun;
 Texture2D textureIdle;
@@ -25,7 +22,9 @@ void initializePlayer(float x, float y, Player *player) {
     player->currentFrame = 0;
     player->flip = 0;
     player->health = 3;
-    
+    player->jumpHeight = 1.5f;
+    player->tileSize = 12;
+
     textureRun = LoadTexture("resource/herochar sprites(new)/herochar_run_anim_strip_6.png");
     if (textureRun.id == 0) {
         puts("INFO: текстуры анимации бега игрока не загрузились");
@@ -80,7 +79,7 @@ void updatePlayer(Player *player, float speed, int **map, int tileSize) {
     }
 
     if (player->onGround && (IsKeyDown(KEY_SPACE) || IsKeyDown(KEY_UP))) {
-        player->velocity.y = -jumpHeight;
+        player->velocity.y = -player->jumpHeight;
         player->onGround = 0;
         player->jumpFrame = 0; // сброс кадра прыжка при начале прыжка
     }
@@ -138,9 +137,9 @@ void updatePlayer(Player *player, float speed, int **map, int tileSize) {
 
 void collision(Player *player, int **map, int dir, int tileSize) {
     int startX = (int)(player->position.x / tileSize);
-    int endX = (int)((player->position.x + playerTileSize) / tileSize);
+    int endX = (int)((player->position.x + player->tileSize) / tileSize);
     int startY = (int)(player->position.y / tileSize);
-    int endY = (int)((player->position.y + playerTileSize) / tileSize);
+    int endY = (int)((player->position.y + player->tileSize) / tileSize);
     
     player->onGround = 0;
 
@@ -149,14 +148,14 @@ void collision(Player *player, int **map, int dir, int tileSize) {
             if (map[y][x] > 0) {
                 // x
                 if (player->velocity.x > 0 && dir == 0) {
-                    player->position.x = x * tileSize - playerTileSize - 0.1f;
+                    player->position.x = x * tileSize - player->tileSize - 0.1f;
                 }
                 if (player->velocity.x < 0 && dir == 0) {
                     player->position.x = x * tileSize + tileSize + 0.1f;
                 }
                 // y
                 if (player->velocity.y > 0 && dir == 1) {
-                    player->position.y = y * tileSize - playerTileSize - 0.1f;
+                    player->position.y = y * tileSize - player->tileSize - 0.1f;
                     player->onGround = 1;
                 }
                 if (player->velocity.y < 0 && dir == 1) {
@@ -169,24 +168,27 @@ void collision(Player *player, int **map, int dir, int tileSize) {
 }
 
 void drawPlayer(Player *player) {
-    //DrawRectangle(player->position.x, player->position.y, playerTileSize, playerTileSize, RED);
+    //DrawRectangle(player->position.x, player->position.y, player->tileSize, player->tileSize, RED);
     frameRect.width = player->flip ? -fabs(frameRect.width) : fabs(frameRect.width);
-
     if (player->onGround == 1) {
         if (player->velocity.x != 0) {
             frameRect.x = (float)player->currentFrame * (float)textureRun.width / maxFrameRun;
-            DrawTextureRec(textureRun, frameRect, (Vector2){player->position.x, player->position.y - (16 - playerTileSize)}, WHITE);
+            DrawTextureRec(textureRun, frameRect, (Vector2){player->position.x - (textureIdle.width/maxFrameIdle - player->tileSize) / 2, 
+                                                            player->position.y - (textureIdle.height - player->tileSize)}, WHITE);
         } else {
             frameRect.x = (float)player->currentFrame * (float)textureIdle.width / maxFrameIdle;
-            DrawTextureRec(textureIdle, frameRect, (Vector2){player->position.x, player->position.y - (16 - playerTileSize)}, WHITE);
+            DrawTextureRec(textureIdle, frameRect, (Vector2){player->position.x - (textureIdle.width / maxFrameIdle - player->tileSize) / 2, 
+                                                             player->position.y - (textureIdle.height - player->tileSize)}, WHITE);
         }
     } else {
         if (player->velocity.y < 0) {
             frameRect.x = (float)player->jumpFrame * (float)textureJump.width / maxFrameJump;
-            DrawTextureRec(textureJump, frameRect, (Vector2){player->position.x, player->position.y - (16 - playerTileSize)}, WHITE);
+            DrawTextureRec(textureJump, frameRect, (Vector2){player->position.x - (textureIdle.width / maxFrameIdle - player->tileSize) / 2, 
+                                                             player->position.y - (textureIdle.height - player->tileSize)}, WHITE);
         } else {
             frameRect.x = (float)player->fallFrame * (float)textureFall.width / maxFrameFall;
-            DrawTextureRec(textureFall, frameRect, (Vector2){player->position.x, player->position.y - (16 - playerTileSize)}, WHITE);
+            DrawTextureRec(textureFall, frameRect, (Vector2){player->position.x - (textureIdle.width / maxFrameIdle - player->tileSize) / 2, 
+                                                             player->position.y - (textureIdle.height - player->tileSize)}, WHITE);
         }
     }
 }

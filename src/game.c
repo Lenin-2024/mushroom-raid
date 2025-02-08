@@ -137,7 +137,7 @@ int main(void) {
             removeInactiveMoney();
 
             for (int i = 0; i < countSlime; i++) {
-               updateSlime(&arraySlime[i], player.position.x, player.position.y, 14);
+               updateSlime(&arraySlime[i], player.position.x, player.position.y, &player.velocity.y, player.jumpHeight, 14);
             }
 
             BeginDrawing();
