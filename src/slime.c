@@ -56,10 +56,10 @@ void initializeSlime(float x, float y, Slime *slime) {
     };
 }
 
-void updateSlime(Slime *slime, float playerX, float playerY, float *velocityY, float playerJumpHeight, int playerTileSize) {
+void updateSlime(Slime *slime, float playerX, float playerY, float *velocityY, float playerJumpHeight, int *playerHealth, int playerTileSize) {
     const float frameSpeedRun = 0.05f;
     const float frameSpeedIdle = 0.09f;
-    const float frameSpeedDeath = 0.09f;
+    const float frameSpeedDeath = 0.125;
     
     //slime->velocity.x += 0.0001;
     
@@ -70,13 +70,14 @@ void updateSlime(Slime *slime, float playerX, float playerY, float *velocityY, f
         playerY < slime->position.y + slimeTileSize && 
         slime->isAlive == 1 && slime->isActivatedDeath == 0) {
         if (playerY + playerTileSize <= slime->position.y + (slimeTileSize / 2)) {
-            puts("Слизень мертв!");
             *velocityY = -playerJumpHeight;
             slime->isActivatedDeath = 1;
             slime->currentFrame = 0;
             slime->frameCounter = 0;
         } else {
             puts("Игрок умер!");
+            (*playerHealth)--;
+            
         }
     }
 

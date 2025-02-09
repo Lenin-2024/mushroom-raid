@@ -15,6 +15,7 @@ Texture2D foreground;
 
 void initTexture();
 void removeInactiveMoney();
+void removeInactiveSlime();
 void unloadTexture();
 
 Texture2D textureGround;
@@ -35,8 +36,9 @@ int main(void) {
     int xMax = 25;
     int **map = initializeMap(xMax, yMax);
     arrayMoney = calloc(sizeof(Money), countMoney); // память для монеток
+    arraySlime = calloc(sizeof(Slime), countSlime);
 
-    InitWindow(windowWidth, windowHeight, "project1");
+    InitWindow(windowWidth, windowHeight, "Мухоморный Рейд");
     initTexture();
     loadMap("save_map.txt", map, xMax, yMax);
     
@@ -136,9 +138,11 @@ int main(void) {
             }
             removeInactiveMoney();
 
+            // обновление слизней
             for (int i = 0; i < countSlime; i++) {
-               updateSlime(&arraySlime[i], player.position.x, player.position.y, &player.velocity.y, player.jumpHeight, 14);
+               updateSlime(&arraySlime[i], player.position.x, player.position.y, &player.velocity.y, player.jumpHeight, &player.health, 14);
             }
+            removeInactiveSlime();
 
             BeginDrawing();
                 ClearBackground(RAYWHITE);
@@ -159,6 +163,7 @@ int main(void) {
                 EndMode2D();
 
                 DrawText(TextFormat("player.position = [%f, %f]", player.position.x, player.position.y), 1, 15, 20, BLACK);
+                DrawText(TextFormat("player.health = [%d]", player.health), 1, 33, 20, BLACK);
                 DrawFPS(1, 1);
             EndDrawing();
         }
@@ -190,6 +195,7 @@ void unloadTexture() {
     UnloadTexture(foreground);
     unloadPlayerTexture();
     unloadMoneyTexture();
+    unloadSlimeTexture();
 }
 
 void initTexture() {
@@ -232,4 +238,24 @@ void removeInactiveMoney() {
     // обновляем указатель и количество монеток
     arrayMoney = newArrayMoney;
     countMoney = newCountMoney;
+}
+
+void removeInactiveSlime() {
+    int newCountSlime = 0;
+    Slime *newArraySlime = malloc(sizeof(Slime) * countSlime);
+    if (newArraySlime == NULL) {
+        return;
+    }
+
+    for (int i = 0; i < countSlime; i++) {
+        if (arraySlime[i].isAlive == 1) {
+            newArraySlime[newCountSlime] = arraySlime[i];
+            newCountSlime++;
+        }
+    }
+
+    free(arraySlime);
+
+    arraySlime = newArraySlime;
+    countSlime = newCountSlime;
 }
