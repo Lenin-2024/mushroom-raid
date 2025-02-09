@@ -53,14 +53,15 @@ void updateSlime(Slime *slime, float playerX, float playerY, float *velocityY, f
     //printf("x : y = (%f : %f); px : py = (%f : %f)\n", slime->position.x, slime->position.y, playerX, playerY);
     
     // gроверка коллизий
-    if (playerX + playerTileSize > slime->position.x && playerX < slime->position.x + slimeTileSize) {
-        if (playerY + playerTileSize > slime->position.y && playerY < slime->position.y + playerTileSize) {
-            if (playerY + playerTileSize <= slime->position.y + (slimeTileSize / 4)) {
-                puts("Слизень мертв!");
-                *velocityY = -playerJumpHeight;
-            } else {
-                puts("Умер");
-            }
+    if (playerX + playerTileSize > slime->position.x + 6 && 
+        playerX < slime->position.x + slimeTileSize - 4 &&
+        playerY + playerTileSize > slime->position.y + 4 &&  // Изменение здесь
+        playerY < slime->position.y + slimeTileSize) {
+        if (playerY + playerTileSize <= slime->position.y + (slimeTileSize / 2)) {
+            puts("Слизень мертв!");
+            *velocityY = -playerJumpHeight;
+        } else {
+            puts("Игрок умер!");
         }
     }
 
@@ -96,7 +97,7 @@ void updateSlime(Slime *slime, float playerX, float playerY, float *velocityY, f
 }
 
 void drawSlime(Slime *slime) {
-    DrawRectangle(slime->position.x + (slimeTileSize / 4), slime->position.y, slimeTileSize / 2, slimeTileSize / 2, RED);
+    //DrawRectangle(slime->position.x + (slimeTileSize / 4), slime->position.y, slimeTileSize / 2, slimeTileSize / 2, RED);
     if (slime->velocity.x != 0) {
         frameRectSlimeRun.width = slime->flip ? -fabs(frameRectSlimeRun.width) : fabs(frameRectSlimeRun.width);
         frameRectSlimeRun.x = (float)slime->currentFrame * (float)textureSlimeRun.width / maxFrameSlimeRun;
