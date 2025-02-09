@@ -48,19 +48,17 @@ void updateSlime(Slime *slime, float playerX, float playerY, float *velocityY, f
     const float frameSpeedRun = 0.05f;
     const float frameSpeedIdle = 0.08f;
 
-    slime->velocity.x += 0.0001;
+    //slime->velocity.x += 0.0001;
     
     //printf("x : y = (%f : %f); px : py = (%f : %f)\n", slime->position.x, slime->position.y, playerX, playerY);
     
-    // Проверка коллизий
+    // gроверка коллизий
     if (playerX + playerTileSize > slime->position.x && playerX < slime->position.x + slimeTileSize) {
-        if (playerY + playerTileSize > slime->position.y && playerY < slime->position.y + playerTileSize) { // Проверка на коллизию по высоте
+        if (playerY + playerTileSize > slime->position.y && playerY < slime->position.y + playerTileSize) {
             if (playerY + playerTileSize <= slime->position.y + (slimeTileSize / 4)) {
-                // Игрок прыгает на голову слизня
                 puts("Слизень мертв!");
-                *velocityY = -playerJumpHeight; // Игрок прыгает обратно
+                *velocityY = -playerJumpHeight;
             } else {
-                // Игрок касается слизня сбоку
                 puts("Умер");
             }
         }
