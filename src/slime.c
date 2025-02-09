@@ -14,6 +14,7 @@ Texture2D textureSlimeRun;
 Texture2D textureSlimeDeath;
 Rectangle frameRectSlimeRun;
 Rectangle frameRectSlimeIdle;
+Rectangle frameRectSlimeDeath;
 
 void initializeSlime(float x, float y, Slime *slime) {
     slime->position = (Vector2){x, y};
@@ -33,6 +34,12 @@ void initializeSlime(float x, float y, Slime *slime) {
         exit(1);
     }
 
+    textureSlimeDeath = LoadTexture("resource/enemies sprites/slime/slime_death_anim_strip_6.png");
+    if (textureSlimeDeath.id == 0) {
+        puts("INFO: текстуры анимации ожидания слизня не загрузились");
+        exit(1);
+    }
+
     frameRectSlimeRun = (Rectangle) {
         0.0f, 0.0f,
         (float)textureSlimeRun.width / maxFrameSlimeRun, (float)textureSlimeRun.height
@@ -42,24 +49,32 @@ void initializeSlime(float x, float y, Slime *slime) {
         0.0f, 0.0f,
         (float)textureSlimeIdle.width / maxFrameSlimeIdle, (float)textureSlimeIdle.height
     };
+
+    frameRectSlimeDeath = (Rectangle) {
+        0.0f, 0.0f,
+        (float)textureSlimeDeath.width / maxFrameSlimeDeath, (float)textureSlimeDeath.height
+    };
 }
 
 void updateSlime(Slime *slime, float playerX, float playerY, float *velocityY, float playerJumpHeight, int playerTileSize) {
     const float frameSpeedRun = 0.05f;
-    const float frameSpeedIdle = 0.08f;
-
+    const float frameSpeedIdle = 0.09f;
+    const float frameSpeedDeath = 0.09f;
+    
     //slime->velocity.x += 0.0001;
     
-    //printf("x : y = (%f : %f); px : py = (%f : %f)\n", slime->position.x, slime->position.y, playerX, playerY);
-    
-    // gроверка коллизий
+    // проверка коллизий
     if (playerX + playerTileSize > slime->position.x + 6 && 
         playerX < slime->position.x + slimeTileSize - 4 &&
-        playerY + playerTileSize > slime->position.y + 4 &&  // Изменение здесь
-        playerY < slime->position.y + slimeTileSize) {
+        playerY + playerTileSize > slime->position.y + 4 &&
+        playerY < slime->position.y + slimeTileSize && 
+        slime->isAlive == 1 && slime->isActivatedDeath == 0) {
         if (playerY + playerTileSize <= slime->position.y + (slimeTileSize / 2)) {
             puts("Слизень мертв!");
             *velocityY = -playerJumpHeight;
+            slime->isActivatedDeath = 1;
+            slime->currentFrame = 0;
+            slime->frameCounter = 0;
         } else {
             puts("Игрок умер!");
         }
@@ -73,22 +88,34 @@ void updateSlime(Slime *slime, float playerX, float playerY, float *velocityY, f
 
     slime->position.x += slime->velocity.x;
 
-    if (slime->velocity.x != 0) {
-        slime->frameCounter += GetFrameTime();
-        if (slime->frameCounter >= frameSpeedRun) {
-            slime->currentFrame++;
-            if (slime->currentFrame >= maxFrameSlimeRun) {
-                slime->currentFrame = 0;
+    if (slime->isActivatedDeath == 0) {
+        if (slime->velocity.x != 0) {
+            slime->frameCounter += GetFrameTime();
+            if (slime->frameCounter >= frameSpeedRun) {
+                slime->currentFrame++;
+                if (slime->currentFrame >= maxFrameSlimeRun) {
+                    slime->currentFrame = 0;
+                }
+                slime->frameCounter = 0;
             }
-            slime->frameCounter = 0;
         }
-    }
 
-    else if (slime->velocity.x == 0) {
+        else if (slime->velocity.x == 0) {
+            slime->frameCounter += GetFrameTime();
+            if (slime->frameCounter >= frameSpeedIdle) {
+                slime->currentFrame++;
+                if (slime->currentFrame >= maxFrameSlimeIdle) {
+                    slime->currentFrame = 0;
+                }
+                slime->frameCounter = 0;
+            }
+        }
+    } else if (slime->isActivatedDeath == 1) {
         slime->frameCounter += GetFrameTime();
-        if (slime->frameCounter >= frameSpeedIdle) {
+        if (slime->frameCounter >= frameSpeedDeath) {
             slime->currentFrame++;
-            if (slime->currentFrame >= maxFrameSlimeIdle) {
+            if (slime->currentFrame == maxFrameSlimeDeath) {
+                slime->isAlive = 0;
                 slime->currentFrame = 0;
             }
             slime->frameCounter = 0;
@@ -98,19 +125,25 @@ void updateSlime(Slime *slime, float playerX, float playerY, float *velocityY, f
 
 void drawSlime(Slime *slime) {
     //DrawRectangle(slime->position.x + (slimeTileSize / 4), slime->position.y, slimeTileSize / 2, slimeTileSize / 2, RED);
-    if (slime->velocity.x != 0) {
-        frameRectSlimeRun.width = slime->flip ? -fabs(frameRectSlimeRun.width) : fabs(frameRectSlimeRun.width);
-        frameRectSlimeRun.x = (float)slime->currentFrame * (float)textureSlimeRun.width / maxFrameSlimeRun;
-        DrawTextureRec(textureSlimeRun, frameRectSlimeRun, (Vector2){slime->position.x, slime->position.y - (slimeTileSize / 2)}, WHITE);
-    }
-    else if (slime->velocity.x == 0) {
-        frameRectSlimeIdle.width = slime->flip ? -fabs(frameRectSlimeIdle.width) : fabs(frameRectSlimeIdle.width);
-        frameRectSlimeIdle.x = (float)slime->currentFrame * (float)textureSlimeIdle.width / maxFrameSlimeIdle;
-        DrawTextureRec(textureSlimeIdle, frameRectSlimeIdle, (Vector2){slime->position.x, slime->position.y - (16 - slimeTileSize)}, WHITE);
+    if (slime->isActivatedDeath == 0) {
+        if (slime->velocity.x != 0) {
+            frameRectSlimeRun.width = slime->flip ? -fabs(frameRectSlimeRun.width) : fabs(frameRectSlimeRun.width);
+            frameRectSlimeRun.x = (float)slime->currentFrame * (float)textureSlimeRun.width / maxFrameSlimeRun;
+            DrawTextureRec(textureSlimeRun, frameRectSlimeRun, (Vector2){slime->position.x, slime->position.y - (slimeTileSize / 2)}, WHITE);
+        }
+        else if (slime->velocity.x == 0) {
+            frameRectSlimeIdle.width = slime->flip ? -fabs(frameRectSlimeIdle.width) : fabs(frameRectSlimeIdle.width);
+            frameRectSlimeIdle.x = (float)slime->currentFrame * (float)textureSlimeIdle.width / maxFrameSlimeIdle;
+            DrawTextureRec(textureSlimeIdle, frameRectSlimeIdle, (Vector2){slime->position.x, slime->position.y - (16 - slimeTileSize)}, WHITE);
+        }
+    } else if (slime->isActivatedDeath == 1 && slime->isAlive == 1) {
+        frameRectSlimeDeath.x = (float)slime->currentFrame * (float)textureSlimeDeath.width / maxFrameSlimeDeath;
+        DrawTextureRec(textureSlimeDeath, frameRectSlimeDeath, (Vector2){slime->position.x, slime->position.y - (slimeTileSize / 2)}, WHITE);
     }
 }
 
 void unloadSlimeTexture() {
+    UnloadTexture(textureSlimeDeath);
     UnloadTexture(textureSlimeIdle);
     UnloadTexture(textureSlimeRun);
 }
