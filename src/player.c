@@ -168,7 +168,7 @@ void collision(Player *player, int **map, int dir, int tileSize) {
 }
 
 void drawPlayer(Player *player) {
-    //DrawRectangle(player->position.x, player->position.y, player->tileSize, player->tileSize, RED);
+    DrawRectangle(player->position.x, player->position.y, player->tileSize, player->tileSize, RED);
     frameRect.width = player->flip ? -fabs(frameRect.width) : fabs(frameRect.width);
     if (player->onGround == 1) {
         if (player->velocity.x != 0) {
