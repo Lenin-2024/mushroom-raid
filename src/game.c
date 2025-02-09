@@ -39,9 +39,9 @@ int main(void) {
     arraySlime = calloc(sizeof(Slime), countSlime);
 
     InitWindow(windowWidth, windowHeight, "Мухоморный Рейд");
+
     initTexture();
     loadMap("save_map.txt", map, xMax, yMax);
-    
     SetTargetFPS(60);
 
     Texture2D textureGround = LoadTexture("resource/tiles and background_foreground (new)/tileset.png");

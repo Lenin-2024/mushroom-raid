@@ -60,8 +60,8 @@ void updateSlime(Slime *slime, float playerX, float playerY, float *velocityY, f
     const float frameSpeedRun = 0.05f;
     const float frameSpeedIdle = 0.09f;
     const float frameSpeedDeath = 0.125;
-    
-    //slime->velocity.x += 0.0001;
+
+    slime->velocity.x += 0.001;
     
     // проверка коллизий
     if (playerX + playerTileSize > slime->position.x + 6 && 
@@ -74,10 +74,9 @@ void updateSlime(Slime *slime, float playerX, float playerY, float *velocityY, f
             slime->isActivatedDeath = 1;
             slime->currentFrame = 0;
             slime->frameCounter = 0;
+            slime->velocity.x = 0;
         } else {
-            puts("Игрок умер!");
-            (*playerHealth)--;
-            
+            (*playerHealth)--;            
         }
     }
 
@@ -99,9 +98,7 @@ void updateSlime(Slime *slime, float playerX, float playerY, float *velocityY, f
                 }
                 slime->frameCounter = 0;
             }
-        }
-
-        else if (slime->velocity.x == 0) {
+        } else if (slime->velocity.x == 0) {
             slime->frameCounter += GetFrameTime();
             if (slime->frameCounter >= frameSpeedIdle) {
                 slime->currentFrame++;
