@@ -16,8 +16,8 @@ Texture2D foreground;
 void initTexture();
 void removeInactiveMoney();
 void removeInactiveSlime();
-void unloadTexture();
-void initializeAll(int **map, Vector2 *playerStartPosition, int yMax, int xMax);
+void unloadTextureAndMemory(int **map, int yMax);
+void initializeAll(int **map, Vector2 *playerStartPosition, Camera2D *camera, int yMax, int xMax);
 void draw(Camera2D *camera, int **map, int yMax, int xMax);
 void update(int **map, Camera2D *camera);
 
@@ -29,39 +29,21 @@ Player player = { 0 };
 int gameOver = 0;
 int gamePause = 0;
 
-// монетки
 int countMoney = 0;
 Money *arrayMoney = NULL;
-
-// враги
 int countSlime = 0;
 Slime *arraySlime = NULL;
 
 int main(void) {
     int yMax = 15;
     int xMax = 25;
+
     int **map = initializeMap(xMax, yMax);
 
-    arrayMoney = calloc(sizeof(Money), countMoney); // память для монеток
-    arraySlime = calloc(sizeof(Slime), countSlime);
-
-    InitWindow(windowWidth, windowHeight, "Мухоморный Рейд");
-
-    initTexture();
-    loadMap("save_map.txt", map, xMax, yMax);
-    SetTargetFPS(60);
-
-    //DisableCursor();
-
     Vector2 playerStartPosition = { 0 };
-
-    initializeAll(map, &playerStartPosition, yMax, xMax);
-
     Camera2D camera = { 0 };
-    camera.target = (Vector2){ player.position.x + 20.0f, player.position.y + 20.0f };
-    camera.offset = (Vector2){ windowWidth / 2.0f, windowHeight / 2.0f };
-    camera.rotation = 0.0f;
-    camera.zoom = 3.8f;
+
+    initializeAll(map, &playerStartPosition, &camera, yMax, xMax);
 
     while(!WindowShouldClose()) {
         if (gameOver == 0) {
@@ -70,28 +52,17 @@ int main(void) {
                 player.health = 3;
                 player.stopDeathAnim = 0;
             }
-
             update(map, &camera);
             draw(&camera, map, yMax, xMax);
-
         } else if (gameOver == 1) {
             player.position = playerStartPosition;
             gameOver = 0;
         }
     }
-
-    unloadTexture();
-
-    for (int i = 0; i < yMax; i++) {
-        free(map[i]);
-    }
-
-    free(map);
-    free(arrayMoney);
-
-    CloseWindow();
+    unloadTextureAndMemory(map, yMax);
     return 0;
 }
+
 
 void update(int **map, Camera2D *camera) {
     camera->target = (Vector2){ player.position.x + 20.0f, player.position.y + 20.0f };
@@ -130,8 +101,37 @@ void draw(Camera2D *camera, int **map, int yMax, int xMax) {
     EndDrawing();
 }
 
-void initializeAll(int **map, Vector2 *playerStartPosition, int yMax, int xMax) {
+void initializeAll(int **map, Vector2 *playerStartPosition, Camera2D *camera, int yMax, int xMax) {
+    camera->target = (Vector2){ player.position.x + 20.0f, player.position.y + 20.0f };
+    camera->offset = (Vector2){ windowWidth / 2.0f, windowHeight / 2.0f };
+    camera->rotation = 0.0f;
+    camera->zoom = 3.8f;
 
+    arrayMoney = calloc(sizeof(Money), countMoney);
+    arraySlime = calloc(sizeof(Slime), countSlime);
+
+    // иницилизация окна
+    InitWindow(windowWidth, windowHeight, "Мухоморный Рейд");
+    SetTargetFPS(60);
+
+    loadMap("save_map.txt", map, xMax, yMax);
+    // иницилизация текстур
+    midground = LoadTexture("resource/tiles and background_foreground (new)/bg_0.png");
+    foreground = LoadTexture("resource/tiles and background_foreground (new)/bg_1.png");
+    textureGround = LoadTexture("resource/tiles and background_foreground (new)/tileset.png");
+
+    for (int y = 0; y < 3; y++) {
+        for (int x = 0; x < 6; x++) {
+
+            int index = y * 6 + x;
+            arrayTexture[index] = (Rectangle) {
+                x * backGroundSize, y * backGroundSize,
+                backGroundSize, backGroundSize
+            };
+        }
+    }
+
+    // иницилизация карты
     for (int y = 0; y < yMax; y++) {
         for (int x = 0; x < xMax; x++) {
             if (map[y][x] == 19) {
@@ -199,7 +199,7 @@ void initializeAll(int **map, Vector2 *playerStartPosition, int yMax, int xMax) 
 }
 
 
-void unloadTexture() {
+void unloadTextureAndMemory(int **map, int yMax) {
     UnloadTexture(textureRun);
     UnloadTexture(textureIdle);
     UnloadTexture(textureGround);
@@ -208,23 +208,15 @@ void unloadTexture() {
     unloadPlayerTexture();
     unloadMoneyTexture();
     unloadSlimeTexture();
-}
 
-void initTexture() {
-    midground = LoadTexture("resource/tiles and background_foreground (new)/bg_0.png");
-    foreground = LoadTexture("resource/tiles and background_foreground (new)/bg_1.png");
-    textureGround = LoadTexture("resource/tiles and background_foreground (new)/tileset.png");
-
-    for (int y = 0; y < 3; y++) {
-        for (int x = 0; x < 6; x++) {
-
-            int index = y * 6 + x;
-            arrayTexture[index] = (Rectangle) {
-                x * backGroundSize, y * backGroundSize,
-                backGroundSize, backGroundSize
-            };
-        }
+    for (int i = 0; i < yMax; i++) {
+        free(map[i]);
     }
+
+    free(map);
+    free(arrayMoney);
+
+    CloseWindow();
 }
 
 
