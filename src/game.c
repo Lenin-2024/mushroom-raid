@@ -17,10 +17,14 @@ void initTexture();
 void removeInactiveMoney();
 void removeInactiveSlime();
 void unloadTexture();
-void initializeAll();
+void initializeAll(int **map, Vector2 *playerStartPosition, int yMax, int xMax);
+void draw(Camera2D *camera, int **map, int yMax, int xMax);
+void update(int **map, Camera2D *camera);
 
 Texture2D textureGround;
 Rectangle arrayTexture[21];
+
+Player player = { 0 };
 
 int gameOver = 0;
 int gamePause = 0;
@@ -47,23 +51,98 @@ int main(void) {
     loadMap("save_map.txt", map, xMax, yMax);
     SetTargetFPS(60);
 
-    Texture2D textureGround = LoadTexture("resource/tiles and background_foreground (new)/tileset.png");
-
     //DisableCursor();
-    Player player = { 0 };
+
     Vector2 playerStartPosition = { 0 };
+
+    initializeAll(map, &playerStartPosition, yMax, xMax);
+
+    Camera2D camera = { 0 };
+    camera.target = (Vector2){ player.position.x + 20.0f, player.position.y + 20.0f };
+    camera.offset = (Vector2){ windowWidth / 2.0f, windowHeight / 2.0f };
+    camera.rotation = 0.0f;
+    camera.zoom = 3.8f;
+
+    while(!WindowShouldClose()) {
+        if (gameOver == 0) {
+            if (IsKeyPressed(KEY_Q)) {
+                gameOver = 1;
+                player.health = 3;
+                player.stopDeathAnim = 0;
+            }
+
+            update(map, &camera);
+            draw(&camera, map, yMax, xMax);
+
+        } else if (gameOver == 1) {
+            player.position = playerStartPosition;
+            gameOver = 0;
+        }
+    }
+
+    unloadTexture();
+
+    for (int i = 0; i < yMax; i++) {
+        free(map[i]);
+    }
+
+    free(map);
+    free(arrayMoney);
+
+    CloseWindow();
+    return 0;
+}
+
+void update(int **map, Camera2D *camera) {
+    camera->target = (Vector2){ player.position.x + 20.0f, player.position.y + 20.0f };
+
+    updatePlayer(&player, 1.5f, map, backGroundSize);
+    updateScrolling(player.position.x);
+    
+    for (int i = 0; i < countMoney; i++) {
+        updateMoney(&arrayMoney[i], player.position.x, player.position.y, 14);
+    }
+    removeInactiveMoney();
+
+    for (int i = 0; i < countSlime; i++) {
+        updateSlime(&arraySlime[i], player.position.x, player.position.y, &player.velocity.y, player.jumpHeight, &player.health, 14, map);
+    }
+    removeInactiveSlime();
+}
+
+void draw(Camera2D *camera, int **map, int yMax, int xMax) {
+    BeginDrawing();
+        ClearBackground(RAYWHITE);
+        drawBackGround(midground, foreground);                
+            BeginMode2D(*camera);
+                drawMap(map, xMax, yMax, backGroundSize, sizeof(arrayTexture)/sizeof(arrayTexture[0]), textureGround, arrayTexture);
+                for (int i = 0; i < countMoney; i++) {
+                    drawMoney(&arrayMoney[i]);
+                }
+                for (int i = 0; i < countSlime; i++) {
+                    drawSlime(&arraySlime[i]);
+                }
+                drawPlayer(&player);
+            EndMode2D();
+        DrawText(TextFormat("player.position = [%f, %f]", player.position.x, player.position.y), 1, 15, 20, BLACK);
+        DrawText(TextFormat("player.health = [%d]", player.health), 1, 33, 20, BLACK);
+        DrawFPS(1, 1);
+    EndDrawing();
+}
+
+void initializeAll(int **map, Vector2 *playerStartPosition, int yMax, int xMax) {
 
     for (int y = 0; y < yMax; y++) {
         for (int x = 0; x < xMax; x++) {
             if (map[y][x] == 19) {
                 initializePlayer(x * backGroundSize, y * backGroundSize, &player);
-                playerStartPosition = (Vector2){ x * backGroundSize, y * backGroundSize };  
+                *playerStartPosition = (Vector2){ x * backGroundSize, y * backGroundSize };  
                 map[y][x] = 0;
             }
 
             if (map[y][x] == 20) {
-                countMoney++;
-                printf("%d\n", countMoney);
+                countMoney++; 
+                //printf("%d\n", countMoney);
                 Money *money = malloc(sizeof(Money));
                 if (money == NULL) {
                     free(money);
@@ -90,7 +169,7 @@ int main(void) {
             
             if (map[y][x] == 21) {
                 countSlime++;
-                printf("%d\n", countSlime);
+                //printf("%d\n", countSlime);
                 Slime *slime = malloc(sizeof(Slime));
                 if (slime == NULL) {
                     free(slime);
@@ -117,78 +196,8 @@ int main(void) {
 
         }
     }
-
-    Camera2D camera = { 0 };
-    camera.target = (Vector2){ player.position.x + 20.0f, player.position.y + 20.0f };
-    camera.offset = (Vector2){ windowWidth / 2.0f, windowHeight / 2.0f };
-    camera.rotation = 0.0f;
-    camera.zoom = 3.8f;
-
-    while(!WindowShouldClose()) {
-        if (gameOver == 0) {
-            if (IsKeyPressed(KEY_Q)) {
-                gameOver = 1;
-                player.health = 3;
-                player.stopDeathAnim = 0;
-            }
-
-            camera.target = (Vector2){ player.position.x + 20.0f, player.position.y + 20.0f };
-
-            updatePlayer(&player, 1.5f, map, backGroundSize);
-            updateScrolling(player.position.x);
-
-            // обновление монет
-            for (int i = 0; i < countMoney; i++) {
-                updateMoney(&arrayMoney[i], player.position.x, player.position.y, 14);
-            }
-            removeInactiveMoney();
-
-            // обновление слизней
-            for (int i = 0; i < countSlime; i++) {
-               updateSlime(&arraySlime[i], player.position.x, player.position.y, &player.velocity.y, player.jumpHeight, &player.health, 14, map);
-            }
-            removeInactiveSlime();
-
-            BeginDrawing();
-                ClearBackground(RAYWHITE);
-                drawBackGround(midground, foreground);
-                
-                BeginMode2D(camera);
-                    drawMap(map, xMax, yMax, backGroundSize, sizeof(arrayTexture)/sizeof(arrayTexture[0]), textureGround, arrayTexture);
-                    // отрисовка монеток
-                    for (int i = 0; i < countMoney; i++) {
-                        drawMoney(&arrayMoney[i]);
-                    }
-                    // отрисовка слайма
-                    for (int i = 0; i < countSlime; i++) {
-                        drawSlime(&arraySlime[i]);
-                    }
-
-                    drawPlayer(&player);
-                EndMode2D();
-
-                DrawText(TextFormat("player.position = [%f, %f]", player.position.x, player.position.y), 1, 15, 20, BLACK);
-                DrawText(TextFormat("player.health = [%d]", player.health), 1, 33, 20, BLACK);
-                DrawFPS(1, 1);
-            EndDrawing();
-        } else if (gameOver == 1) {
-            player.position = playerStartPosition;
-            gameOver = 0;
-        }
-    }
-
-    unloadTexture();
-
-    for (int i = 0; i < yMax; i++) {
-        free(map[i]);
-    }
-
-    free(map);
-    free(arrayMoney);
-
-    CloseWindow();
-    return 0;
 }
+
 
 void unloadTexture() {
     UnloadTexture(textureRun);

@@ -90,8 +90,10 @@ void updateSlime(Slime *slime, float playerX, float playerY, float *velocityY, f
 
     if (slime->dir == 0) {
         slime->velocity.x -= slimeSpeed;
-    } else if (slime->dir == 1) {
+    } else if(slime->dir == 1) {
         slime->velocity.x += slimeSpeed;
+    } else {
+        slime->velocity.x = 0;
     }
 
     slime->flip = slime->dir;
