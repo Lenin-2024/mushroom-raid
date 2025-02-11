@@ -31,6 +31,7 @@ typedef struct Player {
     int onGround;
     int jumpFrame;
     int fallFrame;
+    int stopDeathAnim;
 } Player;
 
 void initializePlayer(float x, float y, Player *player);

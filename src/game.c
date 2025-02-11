@@ -17,6 +17,7 @@ void initTexture();
 void removeInactiveMoney();
 void removeInactiveSlime();
 void unloadTexture();
+void initializeAll();
 
 Texture2D textureGround;
 Rectangle arrayTexture[21];
@@ -27,6 +28,7 @@ int gamePause = 0;
 // монетки
 int countMoney = 0;
 Money *arrayMoney = NULL;
+
 // враги
 int countSlime = 0;
 Slime *arraySlime = NULL;
@@ -35,6 +37,7 @@ int main(void) {
     int yMax = 15;
     int xMax = 25;
     int **map = initializeMap(xMax, yMax);
+
     arrayMoney = calloc(sizeof(Money), countMoney); // память для монеток
     arraySlime = calloc(sizeof(Slime), countSlime);
 
@@ -125,6 +128,8 @@ int main(void) {
         if (gameOver == 0) {
             if (IsKeyPressed(KEY_Q)) {
                 gameOver = 1;
+                player.health = 3;
+                player.stopDeathAnim = 0;
             }
 
             camera.target = (Vector2){ player.position.x + 20.0f, player.position.y + 20.0f };
@@ -140,7 +145,7 @@ int main(void) {
 
             // обновление слизней
             for (int i = 0; i < countSlime; i++) {
-               updateSlime(&arraySlime[i], player.position.x, player.position.y, &player.velocity.y, player.jumpHeight, &player.health, 14);
+               updateSlime(&arraySlime[i], player.position.x, player.position.y, &player.velocity.y, player.jumpHeight, &player.health, 14, map);
             }
             removeInactiveSlime();
 
@@ -166,9 +171,7 @@ int main(void) {
                 DrawText(TextFormat("player.health = [%d]", player.health), 1, 33, 20, BLACK);
                 DrawFPS(1, 1);
             EndDrawing();
-        }
-
-        else if (gameOver == 1) {
+        } else if (gameOver == 1) {
             player.position = playerStartPosition;
             gameOver = 0;
         }
