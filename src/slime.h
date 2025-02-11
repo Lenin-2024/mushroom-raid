@@ -15,6 +15,7 @@ typedef struct Slime {
     int flip;
 } Slime;
 
+extern float playerDamage;
 extern const int maxFrameSlimeIdle;
 extern const int maxFrameSlimeRun;
 extern const int maxFrameSlimeDeath;

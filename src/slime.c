@@ -8,6 +8,7 @@ const int slimeTileSize = 16;
 const int maxFrameSlimeIdle = 5;
 const int maxFrameSlimeRun = 15;
 const int maxFrameSlimeDeath = 6;
+float playerDamage = 0.3;
 
 Texture2D textureSlimeIdle;
 Texture2D textureSlimeRun;
@@ -60,9 +61,11 @@ void updateSlime(Slime *slime, float playerX, float playerY, float *velocityY, f
     const float frameSpeedRun = 0.05f;
     const float frameSpeedIdle = 0.09f;
     const float frameSpeedDeath = 0.125;
+    const float damageInterval = 0.5f;
 
     slime->velocity.x += 0.001;
-    
+    playerDamage += GetFrameTime();
+
     // проверка коллизий
     if (playerX + playerTileSize > slime->position.x + 6 && 
         playerX < slime->position.x + slimeTileSize - 4 &&
@@ -75,8 +78,11 @@ void updateSlime(Slime *slime, float playerX, float playerY, float *velocityY, f
             slime->currentFrame = 0;
             slime->frameCounter = 0;
             slime->velocity.x = 0;
-        } else {
-            (*playerHealth)--;            
+        } else {        
+            if (playerDamage >= damageInterval) {
+                (*playerHealth)--;
+                playerDamage = 0;
+            }            
         }
     }
 

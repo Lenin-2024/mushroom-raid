@@ -8,12 +8,17 @@ const int maxFrameRun = 6;
 const int maxFrameIdle = 4;
 const int maxFrameJump = 3;
 const int maxFrameFall = 3;
+const int maxFrameDeath = 8;
+
 const float gravity = 0.05f;
+float stopDeathAnim = 0;
 
 Texture2D textureRun;
 Texture2D textureIdle;
 Texture2D textureFall;
 Texture2D textureJump;
+Texture2D textureDeath;
+
 Rectangle frameRect;
 
 void initializePlayer(float x, float y, Player *player) {
@@ -49,6 +54,12 @@ void initializePlayer(float x, float y, Player *player) {
        exit(1);
     }
 
+    textureDeath = LoadTexture("resource/herochar sprites(new)/herochar_death_anim_strip_8.png");
+    if (textureDeath.id == 0) {
+       puts("INFO: текстуры анимации смерти игрока не загрузились");
+       exit(1);
+    }
+
     frameRect = (Rectangle) {
         0.0f, 0.0f, 
         (float)textureIdle.width / maxFrameIdle, (float)textureIdle.height 
@@ -61,15 +72,16 @@ void updatePlayer(Player *player, float speed, int **map, int tileSize) {
     const float frameSpeedIdle = 0.15f;
     const float frameSpeedJump = 0.1f;
     const float frameSpeedFall = 0.1f;
+    const float frameSpeedDeath = 0.1f;
 
     player->velocity.x = 0;
 
-    if (IsKeyDown(KEY_LEFT)) {
+    if (IsKeyDown(KEY_LEFT) && player->health > 0) {
         player->velocity.x -= speed;
         player->flip = 1;
     }
 
-    if (IsKeyDown(KEY_RIGHT)) {
+    if (IsKeyDown(KEY_RIGHT) && player->health > 0) {
         player->velocity.x += speed;
         player->flip = 0;
     }
@@ -78,7 +90,7 @@ void updatePlayer(Player *player, float speed, int **map, int tileSize) {
         player->velocity.y += gravity;
     }
 
-    if (player->onGround && (IsKeyDown(KEY_SPACE) || IsKeyDown(KEY_UP))) {
+    if (player->onGround && (IsKeyDown(KEY_SPACE) || IsKeyDown(KEY_UP)) && player->health > 0) {
         player->velocity.y = -player->jumpHeight;
         player->onGround = 0;
         player->jumpFrame = 0; // сброс кадра прыжка при начале прыжка
@@ -91,7 +103,7 @@ void updatePlayer(Player *player, float speed, int **map, int tileSize) {
     collision(player, map, 1, tileSize);
 
     // анимации
-    if (player->onGround == 1) {
+    if (player->onGround == 1 && player->health > 0) {
         if (player->velocity.x != 0) {
             frameCounter += GetFrameTime();
             if (frameCounter >= frameSpeedRun) {
@@ -110,14 +122,14 @@ void updatePlayer(Player *player, float speed, int **map, int tileSize) {
                 }
                 frameCounter = 0;
             }
-        } 
-    } else {
+        }
+    } else if (player->onGround == 0 && player->health > 0) {
         if (player->velocity.y > 0) {
             frameCounter += GetFrameTime();
             if (frameCounter >= frameSpeedFall) {
                 player->fallFrame++;
                 if (player->fallFrame >= maxFrameFall) {
-                    player->fallFrame = 0; // сброс кадра падения
+                    player->fallFrame = 0;
                 }
                 frameCounter = 0;
             }
@@ -126,10 +138,20 @@ void updatePlayer(Player *player, float speed, int **map, int tileSize) {
             if (frameCounter >= frameSpeedJump) {
                 player->jumpFrame++;
                 if (player->jumpFrame >= maxFrameJump) {
-                    player->jumpFrame = 0; // сброс кадра прыжка
+                    player->jumpFrame = 0;
                 }
                 frameCounter = 0;
             }
+        }
+    } else {
+        frameCounter += GetFrameTime();
+        if (frameCounter >= frameSpeedDeath) {
+            player->currentFrame++;
+            if (player->currentFrame >= maxFrameDeath) {
+                player->currentFrame = 0;
+                stopDeathAnim = 1;
+            }
+            frameCounter = 0;
         }
     }
 
@@ -170,7 +192,7 @@ void collision(Player *player, int **map, int dir, int tileSize) {
 void drawPlayer(Player *player) {
     //DrawRectangle(player->position.x, player->position.y, player->tileSize, player->tileSize, RED);
     frameRect.width = player->flip ? -fabs(frameRect.width) : fabs(frameRect.width);
-    if (player->onGround == 1) {
+    if (player->onGround == 1 && player->health > 0) {
         if (player->velocity.x != 0) {
             frameRect.x = (float)player->currentFrame * (float)textureRun.width / maxFrameRun;
             DrawTextureRec(textureRun, frameRect, (Vector2){player->position.x - (textureIdle.width/maxFrameIdle - player->tileSize) / 2, 
@@ -180,7 +202,7 @@ void drawPlayer(Player *player) {
             DrawTextureRec(textureIdle, frameRect, (Vector2){player->position.x - (textureIdle.width / maxFrameIdle - player->tileSize) / 2, 
                                                              player->position.y - (textureIdle.height - player->tileSize)}, WHITE);
         }
-    } else {
+    } else if (player->onGround == 0 && player->health > 0) {
         if (player->velocity.y < 0) {
             frameRect.x = (float)player->jumpFrame * (float)textureJump.width / maxFrameJump;
             DrawTextureRec(textureJump, frameRect, (Vector2){player->position.x - (textureIdle.width / maxFrameIdle - player->tileSize) / 2, 
@@ -190,6 +212,10 @@ void drawPlayer(Player *player) {
             DrawTextureRec(textureFall, frameRect, (Vector2){player->position.x - (textureIdle.width / maxFrameIdle - player->tileSize) / 2, 
                                                              player->position.y - (textureIdle.height - player->tileSize)}, WHITE);
         }
+    } else if (stopDeathAnim == 0) {
+        frameRect.x = (float)player->currentFrame * (float)textureDeath.width / maxFrameDeath;
+        DrawTextureRec(textureDeath, frameRect, (Vector2){player->position.x - (textureDeath.width / maxFrameDeath - player->tileSize) / 2, 
+                                                         player->position.y - (textureDeath.height - player->tileSize)}, WHITE);
     }
 }
 

@@ -10,11 +10,14 @@ extern Texture2D textureRun;
 extern Texture2D textureIdle;
 extern Texture2D textureFall;
 extern Texture2D textureJump;
+extern Texture2D textureDeath;
 
 extern const int maxFrameRun;
 extern const int maxFrameIdle;
 extern const int maxFrameJump;
 extern const int maxFrameFall;
+extern const int maxFrameDeath;
+
 extern const float gravity;
 
 typedef struct Player {
