@@ -8,8 +8,8 @@ const int slimeTileSize = 16;
 const int maxFrameSlimeIdle = 5;
 const int maxFrameSlimeRun = 15;
 const int maxFrameSlimeDeath = 6;
+const float slimeSpeed = 0.3f;
 float playerDamage = 0.3f;
-float const slimeSpeed = 0.3f;
 
 Texture2D textureSlimeIdle;
 Texture2D textureSlimeRun;
