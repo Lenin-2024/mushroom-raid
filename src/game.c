@@ -10,9 +10,6 @@ const int windowWidth = 640;
 const int windowHeight = 480;
 const int backGroundSize = 16;
 
-Texture2D midground;
-Texture2D foreground;
-
 void initTexture();
 void removeInactiveMoney();
 void removeInactiveSlime();
@@ -21,8 +18,13 @@ void initialize(int **map, Vector2 *playerStartPosition, Camera2D *camera, int y
 void draw(Camera2D *camera, int **map, int yMax, int xMax);
 void update(int **map, Camera2D *camera);
 
+Texture2D textureHealthHud;
+Texture2D midground;
+Texture2D foreground;
 Texture2D textureGround;
+
 Rectangle arrayTexture[21];
+Rectangle healthRect;
 
 Player player = { 0 };
 
@@ -37,7 +39,6 @@ Slime *arraySlime = NULL;
 int main(void) {
     int yMax = 15;
     int xMax = 25;
-
     int **map = initializeMap(xMax, yMax);
 
     Vector2 playerStartPosition = { 0 };
@@ -51,7 +52,6 @@ int main(void) {
                 gameOver = 1;
                 initialize(map, &playerStartPosition, &camera, yMax, xMax, 0);
             }
-            printf("playerVelY = %f\n", player.velocity.y);
             update(map, &camera);
             draw(&camera, map, yMax, xMax);
         } else if (gameOver == 1) {
@@ -62,7 +62,6 @@ int main(void) {
     unloadTextureAndMemory(map, yMax);
     return 0;
 }
-
 
 void update(int **map, Camera2D *camera) {
     camera->target = (Vector2){ player.position.x + 20.0f, player.position.y + 20.0f };
@@ -93,11 +92,18 @@ void draw(Camera2D *camera, int **map, int yMax, int xMax) {
                 for (int i = 0; i < countSlime; i++) {
                     drawSlime(&arraySlime[i]);
                 }
+                
                 drawPlayer(&player);
             EndMode2D();
-        DrawText(TextFormat("player.position = [%f, %f]", player.position.x, player.position.y), 1, 15, 20, BLACK);
-        DrawText(TextFormat("player.health = [%d]", player.health), 1, 33, 20, BLACK);
-        DrawFPS(1, 1);
+
+        if (player.health >= 1) {
+            Rectangle sourceHealth = { 0, 0, textureHealthHud.width * 2.0f, textureHealthHud.height * 2.0f };
+            DrawTexturePro(textureHealthHud, healthRect, sourceHealth, (Vector2){0, 0}, 0.0f, WHITE); 
+        }
+
+        DrawText(TextFormat("player.position = [%f, %f]", player.position.x, player.position.y), 1, 30, 20, BLACK);
+        DrawText(TextFormat("player.health = [%d]", player.health), 1, 45, 20, BLACK);
+        DrawFPS(1, 65);
     EndDrawing();
 }
 
@@ -111,18 +117,33 @@ void initialize(int **map, Vector2 *playerStartPosition, Camera2D *camera, int y
     arraySlime = calloc(sizeof(Slime), countSlime);
     
     if (initAll == 1) {
-        // иницилизация окна
         InitWindow(windowWidth, windowHeight, "Мухоморный Рейд");
         SetTargetFPS(60);
+
+        // иницилизация текстур
+        midground = LoadTexture("resource/tiles and background_foreground (new)/bg_0.png");
+        if (midground.id == 0) {
+            exit(1);
+        }
+        foreground = LoadTexture("resource/tiles and background_foreground (new)/bg_1.png");
+        if (foreground.id == 0) {
+            exit(1);
+        }
+        textureGround = LoadTexture("resource/tiles and background_foreground (new)/tileset.png");
+        if (textureGround.id == 0) {
+            exit(1);
+        }
+        textureHealthHud = LoadTexture("resource/hud elements/hearts_hud.png");
+        if (textureHealthHud.id == 0) {
+            exit(1);
+        }
+
+        healthRect = (Rectangle){
+            0, 0, textureHealthHud.width, textureHealthHud.height
+        };
     }
 
     loadMap("save_map.txt", map, xMax, yMax);
-    if (initAll == 1) {
-        // иницилизация текстур
-        midground = LoadTexture("resource/tiles and background_foreground (new)/bg_0.png");
-        foreground = LoadTexture("resource/tiles and background_foreground (new)/bg_1.png");
-        textureGround = LoadTexture("resource/tiles and background_foreground (new)/tileset.png");
-    }
     
     for (int y = 0; y < 3; y++) {
         for (int x = 0; x < 6; x++) {
@@ -202,13 +223,13 @@ void initialize(int **map, Vector2 *playerStartPosition, Camera2D *camera, int y
     }
 }
 
-
 void unloadTextureAndMemory(int **map, int yMax) {
     UnloadTexture(textureRun);
     UnloadTexture(textureIdle);
     UnloadTexture(textureGround);
     UnloadTexture(midground);
     UnloadTexture(foreground);
+    UnloadTexture(textureHealthHud);
     unloadPlayerTexture();
     unloadMoneyTexture();
     unloadSlimeTexture();
@@ -216,13 +237,11 @@ void unloadTextureAndMemory(int **map, int yMax) {
     for (int i = 0; i < yMax; i++) {
         free(map[i]);
     }
-
     free(map);
     free(arrayMoney);
 
     CloseWindow();
 }
-
 
 void removeInactiveMoney() {
     int newCountMoney = 0;

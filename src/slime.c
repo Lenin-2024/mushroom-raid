@@ -69,7 +69,7 @@ void updateSlime(Slime *slime, float playerX, float playerY, float *velocityY, f
 
     // проверка коллизий
     playerDamage += GetFrameTime();
-    if (playerX + playerTileSize > slime->position.x + 6 && 
+    if ((playerX + playerTileSize > slime->position.x + 6) && 
         playerX < slime->position.x + slimeTileSize - 4 &&
         playerY + playerTileSize > slime->position.y + 4 &&
         playerY < slime->position.y + slimeTileSize && 
@@ -96,8 +96,6 @@ void updateSlime(Slime *slime, float playerX, float playerY, float *velocityY, f
 
     slime->flip = slime->dir;
     slime->position.x += slime->velocity.x;
-    printf("Slime position: x: %f, y: %f\n", slime->position.x, slime->position.y);
-    printf("Slime velocity: %f\n", slime->velocity.x);
 
     collisionWithMap(slime, map, 16);
 
