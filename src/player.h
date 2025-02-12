@@ -20,6 +20,8 @@ extern const int maxFrameDeath;
 
 extern const float gravity;
 
+extern int fallCheck;
+
 typedef struct Player {
     Vector2 position;
     Vector2 velocity;
