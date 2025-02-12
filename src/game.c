@@ -17,7 +17,7 @@ void initTexture();
 void removeInactiveMoney();
 void removeInactiveSlime();
 void unloadTextureAndMemory(int **map, int yMax);
-void initializeAll(int **map, Vector2 *playerStartPosition, Camera2D *camera, int yMax, int xMax);
+void initialize(int **map, Vector2 *playerStartPosition, Camera2D *camera, int yMax, int xMax, int initAll);
 void draw(Camera2D *camera, int **map, int yMax, int xMax);
 void update(int **map, Camera2D *camera);
 
@@ -43,15 +43,15 @@ int main(void) {
     Vector2 playerStartPosition = { 0 };
     Camera2D camera = { 0 };
 
-    initializeAll(map, &playerStartPosition, &camera, yMax, xMax);
+    initialize(map, &playerStartPosition, &camera, yMax, xMax, 1);
 
     while(!WindowShouldClose()) {
         if (gameOver == 0) {
             if (IsKeyPressed(KEY_Q)) {
                 gameOver = 1;
-                player.health = 3;
-                player.stopDeathAnim = 0;
+                initialize(map, &playerStartPosition, &camera, yMax, xMax, 0);
             }
+            printf("playerVelY = %f\n", player.velocity.y);
             update(map, &camera);
             draw(&camera, map, yMax, xMax);
         } else if (gameOver == 1) {
@@ -101,7 +101,7 @@ void draw(Camera2D *camera, int **map, int yMax, int xMax) {
     EndDrawing();
 }
 
-void initializeAll(int **map, Vector2 *playerStartPosition, Camera2D *camera, int yMax, int xMax) {
+void initialize(int **map, Vector2 *playerStartPosition, Camera2D *camera, int yMax, int xMax, int initAll) {
     camera->target = (Vector2){ player.position.x + 20.0f, player.position.y + 20.0f };
     camera->offset = (Vector2){ windowWidth / 2.0f, windowHeight / 2.0f };
     camera->rotation = 0.0f;
@@ -109,17 +109,21 @@ void initializeAll(int **map, Vector2 *playerStartPosition, Camera2D *camera, in
 
     arrayMoney = calloc(sizeof(Money), countMoney);
     arraySlime = calloc(sizeof(Slime), countSlime);
-
-    // иницилизация окна
-    InitWindow(windowWidth, windowHeight, "Мухоморный Рейд");
-    SetTargetFPS(60);
+    
+    if (initAll == 1) {
+        // иницилизация окна
+        InitWindow(windowWidth, windowHeight, "Мухоморный Рейд");
+        SetTargetFPS(60);
+    }
 
     loadMap("save_map.txt", map, xMax, yMax);
-    // иницилизация текстур
-    midground = LoadTexture("resource/tiles and background_foreground (new)/bg_0.png");
-    foreground = LoadTexture("resource/tiles and background_foreground (new)/bg_1.png");
-    textureGround = LoadTexture("resource/tiles and background_foreground (new)/tileset.png");
-
+    if (initAll == 1) {
+        // иницилизация текстур
+        midground = LoadTexture("resource/tiles and background_foreground (new)/bg_0.png");
+        foreground = LoadTexture("resource/tiles and background_foreground (new)/bg_1.png");
+        textureGround = LoadTexture("resource/tiles and background_foreground (new)/tileset.png");
+    }
+    
     for (int y = 0; y < 3; y++) {
         for (int x = 0; x < 6; x++) {
 

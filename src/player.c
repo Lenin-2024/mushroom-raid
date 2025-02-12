@@ -11,6 +11,7 @@ const int maxFrameFall = 3;
 const int maxFrameDeath = 8;
 
 const float gravity = 0.05f;
+int fallCheck = 0;
 
 Texture2D textureRun;
 Texture2D textureIdle;
@@ -22,6 +23,7 @@ Rectangle frameRect;
 
 void initializePlayer(float x, float y, Player *player) {
     player->position = (Vector2){ x, y };
+    player->velocity = (Vector2){0, 0};
     player->onGround = 1;
     player->currentFrame = 0;
     player->flip = 0;
@@ -29,6 +31,7 @@ void initializePlayer(float x, float y, Player *player) {
     player->jumpHeight = 1.5f;
     player->tileSize = 12;
     player->stopDeathAnim = 0;
+
 
     textureRun = LoadTexture("resource/herochar sprites(new)/herochar_run_anim_strip_6.png");
     if (textureRun.id == 0) {
@@ -87,12 +90,17 @@ void updatePlayer(Player *player, float speed, int **map, int tileSize) {
     }
 
     if (!player->onGround) {
+        if (fallCheck == 1 && player->velocity.y > 0) {
+            player->velocity.y = 0;
+        }
+        fallCheck = 0;
         player->velocity.y += gravity;
+    } else {
+        fallCheck = 1;
     }
-
+    
     if (player->onGround && (IsKeyDown(KEY_SPACE) || IsKeyDown(KEY_UP)) && player->health > 0) {
         player->velocity.y = -player->jumpHeight;
-        player->onGround = 0;
         player->jumpFrame = 0; // сброс кадра прыжка при начале прыжка
     }
 
@@ -200,12 +208,12 @@ void drawPlayer(Player *player) {
     } else if (player->onGround == 0 && player->health > 0) {
         if (player->velocity.y < 0) {
             frameRect.x = (float)player->jumpFrame * (float)textureJump.width / maxFrameJump;
-            DrawTextureRec(textureJump, frameRect, (Vector2){player->position.x - (textureIdle.width / maxFrameIdle - player->tileSize) / 2, 
-                                                             player->position.y - (textureIdle.height - player->tileSize)}, WHITE);
+            DrawTextureRec(textureJump, frameRect, (Vector2){player->position.x - (textureJump.width / maxFrameJump - player->tileSize) / 2, 
+                                                             player->position.y - (textureJump.height - player->tileSize)}, WHITE);
         } else {
             frameRect.x = (float)player->fallFrame * (float)textureFall.width / maxFrameFall;
-            DrawTextureRec(textureFall, frameRect, (Vector2){player->position.x - (textureIdle.width / maxFrameIdle - player->tileSize) / 2, 
-                                                             player->position.y - (textureIdle.height - player->tileSize)}, WHITE);
+            DrawTextureRec(textureFall, frameRect, (Vector2){player->position.x - (textureFall.width / maxFrameIdle - player->tileSize) / 2, 
+                                                             player->position.y - (textureFall.height - player->tileSize)}, WHITE);
         }
     } else if (player->stopDeathAnim == 0) {
         frameRect.x = (float)player->currentFrame * (float)textureDeath.width / maxFrameDeath;
