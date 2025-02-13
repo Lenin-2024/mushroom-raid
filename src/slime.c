@@ -69,10 +69,10 @@ void updateSlime(Slime *slime, float playerX, float playerY, float *velocityY, f
 
     // проверка коллизий
     playerDamage += GetFrameTime();
-    if ((playerX + playerTileSize > slime->position.x + 6) && 
+    if ((playerX + playerTileSize > slime->position.x + 6) &&
         playerX < slime->position.x + slimeTileSize - 4 &&
         playerY + playerTileSize > slime->position.y + 4 &&
-        playerY < slime->position.y + slimeTileSize && 
+        playerY < slime->position.y + slimeTileSize &&
         slime->isAlive == 1 && slime->isActivatedDeath == 0) {
         if (playerY + playerTileSize <= slime->position.y + (slimeTileSize / 2)) {
             *velocityY = -playerJumpHeight;
@@ -80,8 +80,8 @@ void updateSlime(Slime *slime, float playerX, float playerY, float *velocityY, f
             slime->currentFrame = 0;
             slime->frameCounter = 0;
             slime->velocity.x = 0;
-        } else {        
-            if (playerDamage >= damageInterval) {
+        } else {
+            if (playerDamage >= damageInterval && *playerHealth > 0) {
                 (*playerHealth)--;
                 playerDamage = 0;
             }            

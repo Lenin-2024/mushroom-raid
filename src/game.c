@@ -24,6 +24,7 @@ Texture2D foreground;
 Texture2D textureGround;
 
 Rectangle arrayTexture[21];
+
 Rectangle healthRect;
 
 Player player = { 0 };
@@ -96,8 +97,9 @@ void draw(Camera2D *camera, int **map, int yMax, int xMax) {
                 drawPlayer(&player);
             EndMode2D();
 
-        if (player.health >= 1) {
-            Rectangle sourceHealth = { 0, 0, textureHealthHud.width * 2.0f, textureHealthHud.height * 2.0f };
+
+        for (int i = 0; i < player.health; i++) {
+            Rectangle sourceHealth = { i * 16 * 2.2f, 0, textureHealthHud.width * 2.0f, textureHealthHud.height * 2.0f };
             DrawTexturePro(textureHealthHud, healthRect, sourceHealth, (Vector2){0, 0}, 0.0f, WHITE); 
         }
 

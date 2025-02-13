@@ -27,7 +27,7 @@ void initializePlayer(float x, float y, Player *player) {
     player->onGround = 1;
     player->currentFrame = 0;
     player->flip = 0;
-    player->health = 1;
+    player->health = 3;
     player->jumpHeight = 1.5f;
     player->tileSize = 12;
     player->stopDeathAnim = 0;
