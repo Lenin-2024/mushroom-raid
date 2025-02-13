@@ -8,7 +8,10 @@
 
 const int windowWidth = 640;
 const int windowHeight = 480;
+
 const int backGroundSize = 16;
+
+int startGame = 0;
 
 void initTexture();
 void removeInactiveMoney();
@@ -18,6 +21,7 @@ void initialize(int **map, Vector2 *playerStartPosition, Camera2D *camera, int y
 void draw(Camera2D *camera, int **map, int yMax, int xMax);
 void update(int **map, Camera2D *camera);
 void game(int **map, Vector2 *playerStartPosition, int yMax, int xMax);
+void drawMenu(int **map, Vector2 *playerStartPosition, int yMax, int xMax);
 
 Texture2D textureHealthHud;
 Texture2D midground;
@@ -48,7 +52,11 @@ int main(void) {
     initialize(map, &playerStartPosition, &camera, yMax, xMax, 1);
     
     while(!WindowShouldClose()) {
-        game(map, &playerStartPosition, yMax, xMax);
+        if (startGame != 1) {
+            drawMenu(map, &playerStartPosition, yMax, xMax);
+        } else if (startGame == 1) {
+            game(map, &playerStartPosition, yMax, xMax);
+        }
     }
 
     unloadTextureAndMemory(map, yMax);
@@ -56,17 +64,32 @@ int main(void) {
     return 0;
 }
 
+void drawMenu(int **map, Vector2 *playerStartPosition, int yMax, int xMax) {
+    BeginDrawing();
+        ClearBackground(RAYWHITE);
+            DrawRectangle(10, 10, 50, 50, RED);
+            if (IsMouseButtonDown(0) && 
+                GetMouseX() > 10 && GetMouseX() < 60 &&
+                GetMouseY() > 10 && GetMouseY() < 60) {
+                startGame = 1;
+                initialize(map, playerStartPosition, &camera, yMax, xMax, 0);
+            }
+        //DrawFPS(1, 75);
+    EndDrawing();
+}
+
+
 void game(int **map, Vector2 *playerStartPosition, int yMax, int xMax) {
     if (gameOver == 0) {
         if (IsKeyPressed(KEY_Q)) {
-            gameOver = 1;
-            initialize(map, playerStartPosition, &camera, yMax, xMax, 0);
+            startGame = 0;
         }
         update(map, &camera);
         draw(&camera, map, yMax, xMax);
     } else if (gameOver == 1) {
         player.position = *playerStartPosition;
         gameOver = 0;
+        startGame = 1;
     }
 }
 
@@ -108,9 +131,8 @@ void draw(Camera2D *camera, int **map, int yMax, int xMax) {
             DrawTexturePro(textureHealthHud, healthRect, sourceHealth, (Vector2){0, 0}, 0.0f, WHITE); 
         }
 
-        DrawText(TextFormat("player.position = [%f, %f]", player.position.x, player.position.y), 1, 30, 20, BLACK);
-        DrawText(TextFormat("player.health = [%d]", player.health), 1, 50, 20, BLACK);
-        DrawFPS(1, 75);
+        DrawFPS(565, 0);
+        //DrawText(TextFormat("player.position = [%f, %f]", player.position.x, player.position.y), 1, 50, 20, BLACK);
     EndDrawing();
 }
 
