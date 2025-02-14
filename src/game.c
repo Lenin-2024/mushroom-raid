@@ -8,7 +8,6 @@
 
 const int windowWidth = 640;
 const int windowHeight = 480;
-
 const int backGroundSize = 16;
 
 int startGame = 0;
@@ -17,7 +16,7 @@ void initTexture();
 void removeInactiveMoney();
 void removeInactiveSlime();
 void unloadTextureAndMemory(int **map, int yMax);
-void initialize(int **map, Vector2 *playerStartPosition, Camera2D *camera, int yMax, int xMax, int initAll);
+void initialize(int **map, Vector2 *playerStartPosition, Camera2D *camera, int yMax, int xMax, int initAll, char *nameMap);
 void draw(Camera2D *camera, int **map, int yMax, int xMax);
 void update(int **map, Camera2D *camera);
 void game(int **map, Vector2 *playerStartPosition, int yMax, int xMax);
@@ -27,8 +26,10 @@ Texture2D textureHealthHud;
 Texture2D midground;
 Texture2D foreground;
 Texture2D textureGround;
+Texture2D textureMenu;
 
 Rectangle arrayTexture[21];
+Rectangle arrayButtonNum[18];
 
 Rectangle healthRect;
 
@@ -49,8 +50,8 @@ int main(void) {
     int **map = initializeMap(xMax, yMax);
 
     Vector2 playerStartPosition = { 0 };
-    initialize(map, &playerStartPosition, &camera, yMax, xMax, 1);
-    
+    initialize(map, &playerStartPosition, &camera, yMax, xMax, 1, "level_0.txt");
+
     while(!WindowShouldClose()) {
         if (startGame != 1) {
             drawMenu(map, &playerStartPosition, yMax, xMax);
@@ -65,19 +66,37 @@ int main(void) {
 }
 
 void drawMenu(int **map, Vector2 *playerStartPosition, int yMax, int xMax) {
+    for (int i = 0; i < 2; i++) {
+        Rectangle sourceMenu = { 
+            i * 32 * 2.2f + windowWidth / 2 - (32 * 2), 
+            windowHeight / 2 - 32,
+            textureMenu.width / 15 * 2.0f, 
+            textureMenu.height / 10 * 2.0f 
+        };
+
+        if (IsMouseButtonDown(0) && 
+            GetMouseX() > sourceMenu.x && 
+            GetMouseX() < sourceMenu.x + sourceMenu.width && 
+            GetMouseY() > sourceMenu.y && 
+            GetMouseY() < sourceMenu.y + sourceMenu.height) {
+            startGame = 1;
+            if (i == 0) {
+                initialize(map, playerStartPosition, &camera, yMax, xMax, 1, "level_0.txt");
+            } else if (i == 1) {
+                initialize(map, playerStartPosition, &camera, yMax, xMax, 1, "level_1.txt");
+            }
+            
+        }
+    }
+
     BeginDrawing();
         ClearBackground(RAYWHITE);
-            DrawRectangle(10, 10, 50, 50, RED);
-            if (IsMouseButtonDown(0) && 
-                GetMouseX() > 10 && GetMouseX() < 60 &&
-                GetMouseY() > 10 && GetMouseY() < 60) {
-                startGame = 1;
-                initialize(map, playerStartPosition, &camera, yMax, xMax, 0);
-            }
-        //DrawFPS(1, 75);
+        for (int i = 0; i < 2; i++) {
+            Rectangle sourceMenu = { i * 32 * 2.2f + windowWidth / 2 - (32 * 2), windowHeight / 2 - 32, textureMenu.width / 15 * 2.0f, textureMenu.height / 10 * 2.0f };
+            DrawTexturePro(textureMenu, (Rectangle){12 * 32, i * 32, 32, 32}, sourceMenu, (Vector2){0, 0}, 0.0f, WHITE);
+        }
     EndDrawing();
 }
-
 
 void game(int **map, Vector2 *playerStartPosition, int yMax, int xMax) {
     if (gameOver == 0) {
@@ -128,7 +147,7 @@ void draw(Camera2D *camera, int **map, int yMax, int xMax) {
 
         for (int i = 0; i < player.health; i++) {
             Rectangle sourceHealth = { i * 16 * 2.2f + 2, 2, textureHealthHud.width * 2.0f, textureHealthHud.height * 2.0f };
-            DrawTexturePro(textureHealthHud, healthRect, sourceHealth, (Vector2){0, 0}, 0.0f, WHITE); 
+            DrawTexturePro(textureHealthHud, healthRect, sourceHealth, (Vector2){0, 0}, 0.0f, WHITE);
         }
 
         DrawFPS(565, 0);
@@ -136,18 +155,18 @@ void draw(Camera2D *camera, int **map, int yMax, int xMax) {
     EndDrawing();
 }
 
-void initialize(int **map, Vector2 *playerStartPosition, Camera2D *camera, int yMax, int xMax, int initAll) {
+void initialize(int **map, Vector2 *playerStartPosition, Camera2D *camera, int yMax, int xMax, int initAll, char *nameMap) {
     camera->target = (Vector2){ player.position.x + 20.0f, player.position.y + 20.0f };
-    camera->offset = (Vector2){ windowWidth / 2.0f, windowHeight / 2.0f };
-    camera->rotation = 0.0f;
-    camera->zoom = 3.8f;
-
+    
     arrayMoney = calloc(sizeof(Money), countMoney);
     arraySlime = calloc(sizeof(Slime), countSlime);
     
     if (initAll == 1) {
         InitWindow(windowWidth, windowHeight, "Мухоморный Рейд");
         SetTargetFPS(60);
+        
+        camera->offset = (Vector2){ windowWidth / 2.0f, windowHeight / 2.0f };
+        camera->zoom = 3.8f;
 
         // иницилизация текстур
         midground = LoadTexture("resource/tiles and background_foreground (new)/bg_0.png");
@@ -166,24 +185,27 @@ void initialize(int **map, Vector2 *playerStartPosition, Camera2D *camera, int y
         if (textureHealthHud.id == 0) {
             exit(1);
         }
+        textureMenu = LoadTexture("resource/menu sprites/Green Buttons Icons.png");
+        if (textureMenu.id == 0) {
+            exit(1);
+        }
 
         healthRect = (Rectangle){
             0, 0, textureHealthHud.width, textureHealthHud.height
         };
-    }
 
-    loadMap("save_map.txt", map, xMax, yMax);
-    
-    for (int y = 0; y < 3; y++) {
-        for (int x = 0; x < 6; x++) {
-
-            int index = y * 6 + x;
-            arrayTexture[index] = (Rectangle) {
-                x * backGroundSize, y * backGroundSize,
-                backGroundSize, backGroundSize
-            };
+        for (int y = 0; y < 3; y++) {
+            for (int x = 0; x < 6; x++) {
+                int index = y * 6 + x;
+                arrayTexture[index] = (Rectangle) {
+                    x * backGroundSize, y * backGroundSize,
+                    backGroundSize, backGroundSize
+                };
+            }
         }
     }
+
+    loadMap(nameMap, map, xMax, yMax);
 
     // иницилизация карты
     for (int y = 0; y < yMax; y++) {
@@ -258,6 +280,7 @@ void unloadTextureAndMemory(int **map, int yMax) {
     UnloadTexture(midground);
     UnloadTexture(foreground);
     UnloadTexture(textureHealthHud);
+    UnloadTexture(textureMenu);
     unloadPlayerTexture();
     unloadMoneyTexture();
     unloadSlimeTexture();

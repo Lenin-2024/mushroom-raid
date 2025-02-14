@@ -26,7 +26,7 @@ Texture2D textureMoney;
 Texture2D textureSlime;
 Rectangle arrayGround[21];
 
-int main() {    
+int main(int argc, char **argv) {    
     InitWindow(windowWidth, windowHeight, "TileMapEditor");
     initializeMap();
     initTexture();
@@ -37,22 +37,28 @@ int main() {
     tarPos.x = 0;
     tarPos.y = 0;    
     
-
-
     Camera2D camera = { 0 };
     camera.target = (Vector2){ tarPos.x + 20.0f, tarPos.y + 20.0f };
     camera.offset = (Vector2){ windowWidth / 2.0f, windowHeight / 2.0f };
     camera.rotation = 0.0f;
-    camera.zoom = 3.0f;
+    camera.zoom = 2.0f;
 
-    while(!WindowShouldClose()) {
+    loadMap(argv[1]);
+    
+    while(!WindowShouldClose()) {        
+        if (IsKeyPressed(KEY_S)) {
+            saveMap(argv[1]);
+        }
+
+        /*
         if (IsKeyPressed(KEY_S)) {
             saveMap("save_map.txt");
         }
-        
+
         if (IsKeyPressed(KEY_L)) {
             loadMap("save_map.txt");
         }
+        */
 
         if (IsKeyDown(KEY_LEFT)) {
             tarPos.x -= 5;
