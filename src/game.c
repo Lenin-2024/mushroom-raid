@@ -91,6 +91,7 @@ void drawMenu(int **map, Vector2 *playerStartPosition, int yMax, int xMax) {
 
     BeginDrawing();
         ClearBackground(RAYWHITE);
+        drawBackGround(midground, foreground);
         for (int i = 0; i < 2; i++) {
             Rectangle sourceMenu = { i * 32 * 2.2f + windowWidth / 2 - (32 * 2), windowHeight / 2 - 32, textureMenu.width / 15 * 2.0f, textureMenu.height / 10 * 2.0f };
             DrawTexturePro(textureMenu, (Rectangle){12 * 32, i * 32, 32, 32}, sourceMenu, (Vector2){0, 0}, 0.0f, WHITE);
