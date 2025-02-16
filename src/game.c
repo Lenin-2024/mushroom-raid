@@ -9,6 +9,7 @@
 const int windowWidth = 640;
 const int windowHeight = 480;
 const int backGroundSize = 16;
+int unlockLevel = 1;
 
 int startGame = 0;
 
@@ -66,34 +67,37 @@ int main(void) {
 }
 
 void drawMenu(int **map, Vector2 *playerStartPosition, int yMax, int xMax) {
-    for (int i = 0; i < 2; i++) {
+    if (IsMouseButtonPressed(1)) {
+        unlockLevel++;
+    }
+
+    for (int i = 0; i < unlockLevel; i++) {
         Rectangle sourceMenu = { 
-            i * 32 * 2.2f + windowWidth / 2 - (32 * 2), 
+            i * 32 * 2.2f + windowWidth / 2 - (32 * unlockLevel), 
             windowHeight / 2 - 32,
             textureMenu.width / 15 * 2.0f, 
             textureMenu.height / 10 * 2.0f 
         };
 
         if (IsMouseButtonDown(0) && 
-            GetMouseX() > sourceMenu.x && 
-            GetMouseX() < sourceMenu.x + sourceMenu.width && 
-            GetMouseY() > sourceMenu.y && 
-            GetMouseY() < sourceMenu.y + sourceMenu.height) {
+            GetMouseX() > sourceMenu.x &&
+            GetMouseX() < (sourceMenu.x + sourceMenu.width) &&
+            GetMouseY() > sourceMenu.y &&
+            GetMouseY() < (sourceMenu.y + sourceMenu.height)) {
             startGame = 1;
             if (i == 0) {
-                initialize(map, playerStartPosition, &camera, yMax, xMax, 1, "level_0.txt");
+                initialize(map, playerStartPosition, &camera, yMax, xMax, 0, "level_0.txt");
             } else if (i == 1) {
-                initialize(map, playerStartPosition, &camera, yMax, xMax, 1, "level_1.txt");
+                initialize(map, playerStartPosition, &camera, yMax, xMax, 0, "level_1.txt");
             }
-            
         }
     }
 
     BeginDrawing();
         ClearBackground(RAYWHITE);
         drawBackGround(midground, foreground);
-        for (int i = 0; i < 2; i++) {
-            Rectangle sourceMenu = { i * 32 * 2.2f + windowWidth / 2 - (32 * 2), windowHeight / 2 - 32, textureMenu.width / 15 * 2.0f, textureMenu.height / 10 * 2.0f };
+        for (int i = 0; i < unlockLevel; i++) {
+            Rectangle sourceMenu = { i * 32 * 2.2f + windowWidth / 2 - (32 * unlockLevel), windowHeight / 2 - 32, textureMenu.width / 15 * 2.0f, textureMenu.height / 10 * 2.0f };
             DrawTexturePro(textureMenu, (Rectangle){12 * 32, i * 32, 32, 32}, sourceMenu, (Vector2){0, 0}, 0.0f, WHITE);
         }
     EndDrawing();
@@ -125,7 +129,7 @@ void update(int **map, Camera2D *camera) {
     removeInactiveMoney();
 
     for (int i = 0; i < countSlime; i++) {
-        updateSlime(&arraySlime[i], player.position.x, player.position.y, &player.velocity.y, player.jumpHeight, &player.health, 14, map);
+        updateSlime(&arraySlime[i], &player, map);
     }
     removeInactiveSlime();
 }

@@ -9,7 +9,7 @@ const int maxFrameIdle = 4;
 const int maxFrameJump = 3;
 const int maxFrameFall = 3;
 const int maxFrameDeath = 8;
-
+const int maxFrameBeforeAfterJump = 4;
 const float gravity = 0.05f;
 int fallCheck = 0;
 
@@ -18,8 +18,13 @@ Texture2D textureIdle;
 Texture2D textureFall;
 Texture2D textureJump;
 Texture2D textureDeath;
+Texture2D textureAfterJump;
+Texture2D textureBeforeJump;
 
 Rectangle frameRect;
+Rectangle frameRectDust;
+
+Vector2 dustPosition = {0};
 
 void initializePlayer(float x, float y, Player *player) {
     player->position = (Vector2){ x, y };
@@ -32,50 +37,60 @@ void initializePlayer(float x, float y, Player *player) {
     player->tileSize = 12;
     player->stopDeathAnim = 0;
 
-
     textureRun = LoadTexture("resource/herochar sprites(new)/herochar_run_anim_strip_6.png");
     if (textureRun.id == 0) {
         puts("INFO: текстуры анимации бега игрока не загрузились");
         exit(1);
     }
-
     textureIdle = LoadTexture("resource/herochar sprites(new)/herochar_idle_anim_strip_4.png");
     if (textureIdle.id == 0) {
         puts("INFO: текстуры анимации ожидания игрока не загрузились");
         exit(1);
     }
-
     textureJump = LoadTexture("resource/herochar sprites(new)/herochar_jump_up_anim_strip_3.png");
     if (textureJump.id == 0) {
        puts("INFO: текстуры анимации прыжка игрока не загрузились");
        exit(1);
     }
-
     textureFall = LoadTexture("resource/herochar sprites(new)/herochar_jump_down_anim_strip_3.png");
     if (textureJump.id == 0) {
        puts("INFO: текстуры анимации прыжка игрока не загрузились");
        exit(1);
     }
-
     textureDeath = LoadTexture("resource/herochar sprites(new)/herochar_death_anim_strip_8.png");
     if (textureDeath.id == 0) {
        puts("INFO: текстуры анимации смерти игрока не загрузились");
        exit(1);
+    }
+    textureAfterJump = LoadTexture("resource/herochar sprites(new)/herochar_after_jump_dust_anim_strip_4.png");
+    if (textureAfterJump.id == 0) {
+        exit(1);
+    }
+    textureBeforeJump = LoadTexture("resource/herochar sprites(new)/herochar_before_jump_dust_anim_strip_4.png");
+    if (textureAfterJump.id == 0) {
+        exit(1);
     }
 
     frameRect = (Rectangle) {
         0.0f, 0.0f, 
         (float)textureIdle.width / maxFrameIdle, (float)textureIdle.height 
     };
+
+    frameRectDust = (Rectangle) {
+        0.0f, 0.0f,
+        (float)textureBeforeJump.width / maxFrameBeforeAfterJump, (float)textureBeforeJump.height
+    };
 }
 
 void updatePlayer(Player *player, float speed, int **map, int tileSize) {
     static float frameCounter = 0.0f;
+    static float frameDustCounter = 0.0f;
     const float frameSpeedRun = 0.1f;
     const float frameSpeedIdle = 0.15f;
     const float frameSpeedJump = 0.1f;
     const float frameSpeedFall = 0.1f;
     const float frameSpeedDeath = 0.1f;
+    const float frameSpeedBeforeAfterJump = 0.1f;
 
     player->velocity.x = 0;
 
@@ -99,9 +114,15 @@ void updatePlayer(Player *player, float speed, int **map, int tileSize) {
         fallCheck = 1;
     }
     
-    if (player->onGround && (IsKeyDown(KEY_SPACE) || IsKeyDown(KEY_UP)) && player->health > 0) {
+    if (player->onGround && (IsKeyDown(KEY_SPACE) || IsKeyDown(KEY_UP)) && (player->health > 0)) {
         player->velocity.y = -player->jumpHeight;
         player->jumpFrame = 0; // сброс кадра прыжка при начале прыжка
+        player->dustAnimationActive = 1;
+        dustPosition = (Vector2){player->position.x - player->tileSize / 4, player->position.y - player->tileSize / 4};
+    }
+
+    if (!player->onGround && player->velocity.y < 0) {
+        player->dustAnimationActive = 1;
     }
 
     player->position.x += player->velocity.x;
@@ -109,6 +130,18 @@ void updatePlayer(Player *player, float speed, int **map, int tileSize) {
     
     player->position.y += player->velocity.y;
     collision(player, map, 1, tileSize);
+
+    frameDustCounter += GetFrameTime();
+    if (player->dustAnimationActive) {
+        if (frameDustCounter >= frameSpeedBeforeAfterJump) {
+            player->dustFrame++;
+            if (player->dustFrame >= maxFrameBeforeAfterJump) {
+                player->dustFrame = 0;
+                player->dustAnimationActive = 0;
+            }
+            frameDustCounter = 0;
+        }
+    }
 
     // анимации
     frameCounter += GetFrameTime();
@@ -121,7 +154,7 @@ void updatePlayer(Player *player, float speed, int **map, int tileSize) {
                 }
                 frameCounter = 0;
             }
-        }  else if (player->velocity.x == 0) {
+        } else if (player->velocity.x == 0) {
             if (frameCounter >= frameSpeedIdle) {
                 player->currentFrame++;
                 if (player->currentFrame >= maxFrameIdle) {
@@ -193,12 +226,19 @@ void collision(Player *player, int **map, int dir, int tileSize) {
 }
 
 void drawPlayer(Player *player) {
+    if (player->dustAnimationActive == 1) {
+        printf("%f : %f\n", frameRectDust.width, frameRectDust.height);
+
+        frameRectDust.x = (float)player->dustFrame * (float)textureBeforeJump.width / maxFrameBeforeAfterJump;
+        DrawTextureRec(textureBeforeJump, frameRectDust, dustPosition, WHITE);
+    }
+
     //DrawRectangle(player->position.x, player->position.y, player->tileSize, player->tileSize, RED);
     frameRect.width = player->flip ? -fabs(frameRect.width) : fabs(frameRect.width);
     if (player->onGround == 1 && player->health > 0) {
         if (player->velocity.x != 0) {
             frameRect.x = (float)player->currentFrame * (float)textureRun.width / maxFrameRun;
-            DrawTextureRec(textureRun, frameRect, (Vector2){player->position.x - (textureIdle.width/maxFrameIdle - player->tileSize) / 2, 
+            DrawTextureRec(textureRun, frameRect, (Vector2){player->position.x - (textureIdle.width / maxFrameIdle - player->tileSize) / 2, 
                                                             player->position.y - (textureIdle.height - player->tileSize)}, WHITE);
         } else {
             frameRect.x = (float)player->currentFrame * (float)textureIdle.width / maxFrameIdle;
@@ -222,9 +262,60 @@ void drawPlayer(Player *player) {
     }
 }
 
+ /*
+void drawPlayer(Player *player) {
+    // Инициализация текстур для отрисовки
+    if (player->dustAnimationActive) {
+        // Рисуем текстуру пыли
+        Rectangle dustFrameRect = (Rectangle) {
+            0.0f, 0.0f,
+            (float)textureBeforeJump.width / maxFrameBeforeAfterJump,
+            (float)textureBeforeJump.height
+        };
+        dustFrameRect.x = (float)player->dustFrame * (float)textureBeforeJump.width / maxFrameBeforeAfterJump;
+
+        DrawTextureRec(textureBeforeJump, dustFrameRect,
+                       (Vector2){player->position.x - (textureBeforeJump.width / maxFrameBeforeAfterJump - player->tileSize) / 2,
+                                  player->position.y - (textureBeforeJump.height - player->tileSize)}, WHITE);
+    }
+    
+    // Устанавливаем кадр для текущей анимации
+    frameRect.width = player->flip ? -fabs(frameRect.width) : fabs(frameRect.width);
+    
+    // Отрисовка игрока в зависимости от состояния
+    if (player->onGround && player->health > 0) {
+        if (player->velocity.x != 0) {
+            frameRect.x = (float)player->currentFrame * (float)textureRun.width / maxFrameRun;
+            DrawTextureRec(textureRun, frameRect, (Vector2){player->position.x - (textureIdle.width / maxFrameIdle - player->tileSize) / 2, 
+                                                             player->position.y - (textureIdle.height - player->tileSize)}, WHITE);
+        } else {
+            frameRect.x = (float)player->currentFrame * (float)textureIdle.width / maxFrameIdle;
+            DrawTextureRec(textureIdle, frameRect, (Vector2){player->position.x - (textureIdle.width / maxFrameIdle - player->tileSize) / 2, 
+                                                             player->position.y - (textureIdle.height - player->tileSize)}, WHITE);
+        }
+    } else if (!player->onGround && player->health > 0) {
+        if (player->velocity.y < 0) {
+            frameRect.x = (float)player->jumpFrame * (float)textureJump.width / maxFrameJump;
+            DrawTextureRec(textureJump, frameRect, (Vector2){player->position.x - (textureJump.width / maxFrameJump - player->tileSize) / 2, 
+                                                             player->position.y - (textureJump.height - player->tileSize)}, WHITE);
+        } else {
+            frameRect.x = (float)player->fallFrame * (float)textureFall.width / maxFrameFall;
+            DrawTextureRec(textureFall, frameRect, (Vector2){player->position.x - (textureFall.width / maxFrameIdle - player->tileSize) / 2, 
+                                                             player->position.y - (textureFall.height - player->tileSize)}, WHITE);
+        }
+    } else if (player->stopDeathAnim == 0) {
+        frameRect.x = (float)player->currentFrame * (float)textureDeath.width / maxFrameDeath;
+        DrawTextureRec(textureDeath, frameRect, (Vector2){player->position.x - (textureDeath.width / maxFrameDeath - player->tileSize) / 2, 
+                                                          player->position.y - (textureDeath.height - player->tileSize)}, WHITE);
+    }
+}
+*/
+
 void unloadPlayerTexture() {
     UnloadTexture(textureIdle);
     UnloadTexture(textureRun);
     UnloadTexture(textureFall);
     UnloadTexture(textureJump);
+    UnloadTexture(textureAfterJump);
+    UnloadTexture(textureBeforeJump);
 }

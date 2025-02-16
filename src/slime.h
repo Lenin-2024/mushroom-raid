@@ -2,6 +2,7 @@
 #define SLIME_H
 
 #include "raylib.h"
+#include "player.h"
 
 extern const int slimeTileSize;
 
@@ -30,7 +31,7 @@ extern Rectangle frameRectSlimeRun;
 extern Rectangle frameRectSlimeIdle;
 
 void initializeSlime(float x, float y, Slime *slime);
-void updateSlime(Slime *slime, float playerX, float playerY, float *velocityY, float playerJumpHeight, int *playerHealth, int playerTileSize, int **map);
+void updateSlime(Slime *slime, Player* player, int **map);
 void drawSlime(Slime *slime);
 void unloadSlimeTexture();
 void collisionWithMap(Slime *slime, int **map, int tileSize);

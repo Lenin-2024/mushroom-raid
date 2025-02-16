@@ -3,6 +3,7 @@
 #include <math.h>
 #include "raylib.h"
 #include "slime.h"
+#include "player.h"
 
 const int slimeTileSize = 16;
 const int maxFrameSlimeIdle = 5;
@@ -59,7 +60,7 @@ void initializeSlime(float x, float y, Slime *slime) {
     };
 }
 
-void updateSlime(Slime *slime, float playerX, float playerY, float *velocityY, float playerJumpHeight, int *playerHealth, int playerTileSize, int **map) {
+void updateSlime(Slime *slime, Player *player, int **map) {
     const float frameSpeedRun = 0.05f;
     const float frameSpeedIdle = 0.09f;
     const float frameSpeedDeath = 0.125;
@@ -69,20 +70,20 @@ void updateSlime(Slime *slime, float playerX, float playerY, float *velocityY, f
 
     // проверка коллизий
     playerDamage += GetFrameTime();
-    if ((playerX + playerTileSize > slime->position.x + 6) &&
-        playerX < slime->position.x + slimeTileSize - 4 &&
-        playerY + playerTileSize > slime->position.y + 4 &&
-        playerY < slime->position.y + slimeTileSize &&
+    if ((player->position.x + player->tileSize > slime->position.x + 6) &&
+        (player->position.x < slime->position.x + slimeTileSize - 4) &&
+        (player->position.y + player->tileSize > slime->position.y + 4) &&
+        (player->position.y < slime->position.y + slimeTileSize) &&
         slime->isAlive == 1 && slime->isActivatedDeath == 0) {
-        if (playerY + playerTileSize <= slime->position.y + (slimeTileSize / 2)) {
-            *velocityY = -playerJumpHeight;
+        if (player->position.y + player->tileSize <= slime->position.y + (slimeTileSize / 2)) {
+            player->velocity.y = -player->jumpHeight;
             slime->isActivatedDeath = 1;
             slime->currentFrame = 0;
             slime->frameCounter = 0;
             slime->velocity.x = 0;
         } else {
-            if (playerDamage >= damageInterval && *playerHealth > 0) {
-                (*playerHealth)--;
+            if (playerDamage >= damageInterval && player->health > 0) {
+                player->health--;
                 playerDamage = 0;
             }            
         }
