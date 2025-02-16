@@ -13,6 +13,7 @@ extern Texture2D textureJump;
 extern Texture2D textureDeath;
 extern Texture2D textureAfterJump;
 extern Texture2D textureBeforeJump;
+extern Texture2D texturePlayerBeforeJump;
 
 extern const int maxFrameRun;
 extern const int maxFrameIdle;
