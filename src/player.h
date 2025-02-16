@@ -40,7 +40,8 @@ typedef struct Player {
     int jumpFrame;
     int fallFrame;
     int stopDeathAnim;
-    int dustAnimationActive;
+    int dustBeforeAnimationActive;
+    int dustAfterAnimationActive;
 } Player;
 
 void initializePlayer(float x, float y, Player *player);

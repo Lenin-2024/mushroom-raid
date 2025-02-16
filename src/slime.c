@@ -70,9 +70,9 @@ void updateSlime(Slime *slime, Player *player, int **map) {
 
     // проверка коллизий
     playerDamage += GetFrameTime();
-    if ((player->position.x + player->tileSize > slime->position.x + 6) &&
-        (player->position.x < slime->position.x + slimeTileSize - 4) &&
-        (player->position.y + player->tileSize > slime->position.y + 4) &&
+    if ((player->position.x + player->tileSize) > (slime->position.x + 6) &&
+        player->position.x < (slime->position.x + slimeTileSize - 4) &&
+        (player->position.y + player->tileSize) > (slime->position.y + 4) &&
         (player->position.y < slime->position.y + slimeTileSize) &&
         slime->isAlive == 1 && slime->isActivatedDeath == 0) {
         if (player->position.y + player->tileSize <= slime->position.y + (slimeTileSize / 2)) {
