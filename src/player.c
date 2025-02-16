@@ -20,7 +20,6 @@ Texture2D textureJump;
 Texture2D textureDeath;
 Texture2D textureAfterJump;
 Texture2D textureBeforeJump;
-Texture2D texturePlayerBeforeJump;
 
 Rectangle frameRect;
 Rectangle frameRectDust;
@@ -73,10 +72,6 @@ void initializePlayer(float x, float y, Player *player) {
     if (textureAfterJump.id == 0) {
         exit(1);
     }
-    texturePlayerBeforeJump = LoadTexture("resource/herochar sprites(new)/herochar_before_or_after_jump_srip_2.png");
-    if (texturePlayerBeforeJump.id == 0) {
-        exit(1);
-    }
 
     frameRect = (Rectangle) {
         0.0f, 0.0f, 
@@ -99,7 +94,6 @@ void updatePlayer(Player *player, float speed, int **map, int tileSize) {
     const float frameSpeedDeath = 0.1f;
     const float frameSpeedBeforeJump = 0.085f;
     const float frameSpeedAfterJump = 0.075f;
-    const float frameSpeedPlayerAfterJump = 0.15f;
 
     static int justLanded = 0;
     player->velocity.x = 0;
@@ -171,16 +165,7 @@ void updatePlayer(Player *player, float speed, int **map, int tileSize) {
 
     //анимация игрока
     frameCounter += GetFrameTime();
-    if (player->dustAfterAnimationActive == 1) {
-        if (frameCounter >= frameSpeedPlayerAfterJump) {
-            player->currentFrame++;
-            if (player->currentFrame >= maxFrameBeforeAfterJump) {
-                player->currentFrame = 0;
-            }
-            frameCounter = 0;
-        }
-    }
-    else if (player->onGround == 1 && player->health > 0) {
+    if (player->onGround == 1 && player->health > 0) {
         if (player->velocity.x != 0) {
             if (frameCounter >= frameSpeedRun) {
                 player->currentFrame++;
@@ -266,19 +251,15 @@ void drawPlayer(Player *player) {
     if (player->dustBeforeAnimationActive == 1) {
         frameRectDust.x = (float)player->dustFrame * (float)textureBeforeJump.width / maxFrameBeforeAfterJump;
         DrawTextureRec(textureBeforeJump, frameRectDust, dustPosition, WHITE);
-    } 
-
-    // отрисовка игрока
-    frameRect.width = player->flip ? -fabs(frameRect.width) : fabs(frameRect.width);
+    }
     if (player->dustAfterAnimationActive == 1) {
         frameRectDust.x = (float)player->dustFrame * (float)textureAfterJump.width / maxFrameBeforeAfterJump;
         DrawTextureRec(textureAfterJump, frameRectDust, dustPosition, WHITE);
-
-        frameRect.x = player->currentFrame * (textureRun.width / maxFrameRun);
-        DrawTextureRec(texturePlayerBeforeJump, frameRect, (Vector2){player->position.x - (texturePlayerBeforeJump.width / maxFrameIdle - player->tileSize) / 2, 
-                                                                     player->position.y - (texturePlayerBeforeJump.height - player->tileSize)}, WHITE);
     }
-    else if (player->onGround == 1 && player->health > 0) {
+
+    // отрисовка игрока
+    frameRect.width = player->flip ? -fabs(frameRect.width) : fabs(frameRect.width); 
+    if (player->onGround == 1 && player->health > 0) {
         if (player->velocity.x != 0) {
             frameRect.x = player->currentFrame * (textureRun.width / maxFrameRun);
             DrawTextureRec(textureRun, frameRect, (Vector2){player->position.x - (textureIdle.width / maxFrameIdle - player->tileSize) / 2, 
