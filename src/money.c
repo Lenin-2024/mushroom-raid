@@ -38,8 +38,8 @@ void updateMoney(Money *money, float playerX, float playerY, int playerTileSize)
     float speedAnimationIdle = 0.08f;
     float speedAnimationPickUp = 0.1f;
 
-    if (playerX + playerTileSize > money->position.x && playerX < money->position.x + 8 &&
-        playerY + playerTileSize > money->position.y && playerY < money->position.y + 8 && 
+    if ((playerX + playerTileSize) > money->position.x && playerX < (money->position.x + 8) &&
+        (playerY + playerTileSize) > money->position.y && playerY < (money->position.y + 8) && 
         money->isAlive == 1 && money->isActivated == 0) {
             money->isActivated = 1;
             money->frameCounter = 0;

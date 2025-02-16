@@ -302,13 +302,11 @@ void unloadTextureAndMemory(int **map, int yMax) {
 void removeInactiveMoney() {
     int newCountMoney = 0;
 
-    // создаем временный массив для активных монеток
     Money *newArrayMoney = malloc(sizeof(Money) * countMoney);
     if (newArrayMoney == NULL) {
         return;
     }
 
-    // копируем активные монетки в новый массив
     for (int i = 0; i < countMoney; i++) {
         if (arrayMoney[i].isAlive == 1) {
             newArrayMoney[newCountMoney] = arrayMoney[i];
@@ -318,7 +316,6 @@ void removeInactiveMoney() {
 
     free(arrayMoney);
 
-    // обновляем указатель и количество монеток
     arrayMoney = newArrayMoney;
     countMoney = newCountMoney;
 }
