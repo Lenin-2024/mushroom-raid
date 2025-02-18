@@ -118,7 +118,7 @@ void game(int **map, Vector2 *playerStartPosition, int yMax, int xMax) {
 }
 
 void update(int **map, Camera2D *camera) {
-    camera->target = (Vector2){ player.position.x + 20.0f, player.position.y + 20.0f };
+    camera->target = (Vector2){ player.position.x + (player.tileSize / 2), player.position.y + (player.tileSize / 2)};
 
     updatePlayer(&player, 1.5f, map, backGroundSize);
     updateScrolling(player.position.x);
@@ -161,7 +161,8 @@ void draw(Camera2D *camera, int **map, int yMax, int xMax) {
 }
 
 void initialize(int **map, Vector2 *playerStartPosition, Camera2D *camera, int yMax, int xMax, int initAll, char *nameMap) {
-    camera->target = (Vector2){ player.position.x + 20.0f, player.position.y + 20.0f };
+    camera->target = (Vector2){player.position.x + (player.tileSize / 2), 
+                               player.position.y + (player.tileSize / 2)};
     
     arrayMoney = calloc(sizeof(Money), countMoney);
     arraySlime = calloc(sizeof(Slime), countSlime);

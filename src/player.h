@@ -13,7 +13,7 @@ extern Texture2D textureJump;
 extern Texture2D textureDeath;
 extern Texture2D textureAfterJump;
 extern Texture2D textureBeforeJump;
-extern Texture2D texturePlayerBeforeJump;
+extern Texture2D textureAttack;
 
 extern const int maxFrameRun;
 extern const int maxFrameIdle;
@@ -21,9 +21,9 @@ extern const int maxFrameJump;
 extern const int maxFrameFall;
 extern const int maxFrameDeath;
 extern const int maxFrameBeforeAfterJump;
+extern const int maxFrameAttack;
 
 extern const float gravity;
-
 extern int fallCheck;
 
 extern Vector2 dustPosition;
@@ -32,9 +32,11 @@ typedef struct Player {
     Vector2 position;
     Vector2 velocity;
     float jumpHeight;
+    float attackWidth;
     int tileSize;
     int health;
     int currentFrame;
+    int currentAttackFrame;
     int dustFrame;
     int flip;
     int onGround;
@@ -43,6 +45,7 @@ typedef struct Player {
     int stopDeathAnim;
     int dustBeforeAnimationActive;
     int dustAfterAnimationActive;
+    int isAttack;
 } Player;
 
 void initializePlayer(float x, float y, Player *player);

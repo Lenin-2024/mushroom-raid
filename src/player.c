@@ -10,6 +10,8 @@ const int maxFrameJump = 3;
 const int maxFrameFall = 3;
 const int maxFrameDeath = 8;
 const int maxFrameBeforeAfterJump = 4;
+const int maxFrameAttack = 4;
+
 const float gravity = 0.05f;
 int fallCheck = 0;
 
@@ -20,10 +22,11 @@ Texture2D textureJump;
 Texture2D textureDeath;
 Texture2D textureAfterJump;
 Texture2D textureBeforeJump;
+Texture2D textureAttack;
 
 Rectangle frameRect;
 Rectangle frameRectDust;
-
+Rectangle frameRectAttack;
 Vector2 dustPosition = {0};
 
 void initializePlayer(float x, float y, Player *player) {
@@ -31,6 +34,7 @@ void initializePlayer(float x, float y, Player *player) {
     player->velocity = (Vector2){0, 0};
     player->onGround = 1;
     player->currentFrame = 0;
+    player->currentAttackFrame = 0;
     player->flip = 0;
     player->health = 3;
     player->jumpHeight = 1.5f;
@@ -38,6 +42,8 @@ void initializePlayer(float x, float y, Player *player) {
     player->stopDeathAnim = 0;
     player->dustAfterAnimationActive = 0;
     player->dustBeforeAnimationActive = 0;
+    player->isAttack = 0;
+    player->attackWidth = 24;
 
     textureRun = LoadTexture("resource/herochar sprites(new)/herochar_run_anim_strip_6.png");
     if (textureRun.id == 0) {
@@ -72,15 +78,24 @@ void initializePlayer(float x, float y, Player *player) {
     if (textureAfterJump.id == 0) {
         exit(1);
     }
+    textureAttack = LoadTexture("resource/herochar sprites(new)/herochar_sword_attack_anim_strip_4.png");
+    if (textureAttack.id == 0) {
+        exit(1);
+    }
 
-    frameRect = (Rectangle) {
+    frameRect = (Rectangle){
         0.0f, 0.0f, 
-        (float)textureIdle.width / maxFrameIdle, (float)textureIdle.height 
+        textureIdle.width / maxFrameIdle, textureIdle.height 
     };
 
-    frameRectDust = (Rectangle) {
+    frameRectDust = (Rectangle){
         0.0f, 0.0f,
-        (float)textureBeforeJump.width / maxFrameBeforeAfterJump, (float)textureBeforeJump.height
+        textureBeforeJump.width / maxFrameBeforeAfterJump, textureBeforeJump.height
+    };
+
+    frameRectAttack = (Rectangle){
+        0.0f, 0.0f,
+        textureAttack.width / maxFrameAttack, textureAttack.height
     };
 }
 
@@ -94,9 +109,12 @@ void updatePlayer(Player *player, float speed, int **map, int tileSize) {
     const float frameSpeedDeath = 0.1f;
     const float frameSpeedBeforeJump = 0.085f;
     const float frameSpeedAfterJump = 0.075f;
+    const float frameSpeedAttack = 0.1f;
 
     static int justLanded = 0;
     player->velocity.x = 0;
+
+    player->attackWidth = player->flip ? -fabs(player->attackWidth) : fabs(player->attackWidth);
 
     if (IsKeyDown(KEY_LEFT) && player->health > 0) {
         player->velocity.x -= speed;
@@ -107,15 +125,14 @@ void updatePlayer(Player *player, float speed, int **map, int tileSize) {
         player->flip = 0;
     }
    
-    if (player->onGround) {
+    if (player->onGround && player->health > 0) {
         fallCheck = 1;
         if (justLanded == 1) {
             player->dustAfterAnimationActive = 1;
             justLanded = 0;
             dustPosition = (Vector2){player->position.x - player->tileSize / 4, player->position.y - player->tileSize / 4};
         }
-
-        if ((IsKeyDown(KEY_SPACE) || IsKeyDown(KEY_UP)) && (player->health > 0)) {
+        if (IsKeyDown(KEY_UP)) {
             player->velocity.y = -player->jumpHeight;
             player->jumpFrame = 0;
             player->dustBeforeAnimationActive = 1;
@@ -123,8 +140,12 @@ void updatePlayer(Player *player, float speed, int **map, int tileSize) {
             justLanded = 1;
             dustPosition = (Vector2){player->position.x - player->tileSize / 4, player->position.y - player->tileSize / 4};
         }
+        if (IsKeyPressed(KEY_SPACE) && (player->isAttack == 0)) {
+            
+            player->isAttack = 1;
+        }
     } else {
-        if (fallCheck == 1 && player->velocity.y > 0) {
+        if ((fallCheck == 1) && (player->velocity.y > 0)) {
             player->velocity.y = 0;
         }
         fallCheck = 0;
@@ -137,7 +158,7 @@ void updatePlayer(Player *player, float speed, int **map, int tileSize) {
     player->position.y += player->velocity.y;
     collision(player, map, 1, tileSize);
     
-    // анимация пыли по игроком
+    // анимация пыли под игроком
     frameDustCounter += GetFrameTime();
     if (player->dustBeforeAnimationActive == 1) {
         if (frameDustCounter >= frameSpeedBeforeJump) {
@@ -150,7 +171,6 @@ void updatePlayer(Player *player, float speed, int **map, int tileSize) {
             frameDustCounter = 0;
         }
     }
-    
     if (player->dustAfterAnimationActive == 1) {
         if (frameDustCounter >= frameSpeedAfterJump) {
             player->dustFrame++;
@@ -165,7 +185,16 @@ void updatePlayer(Player *player, float speed, int **map, int tileSize) {
 
     //анимация игрока
     frameCounter += GetFrameTime();
-    if (player->onGround == 1 && player->health > 0) {
+    if (player->isAttack == 1) {
+        if (frameCounter >= frameSpeedAttack) {
+                player->currentAttackFrame++;
+                if (player->currentAttackFrame >= maxFrameAttack) {
+                    player->currentAttackFrame = 0;
+                    player->isAttack = 0;
+                }
+            frameCounter = 0;
+        }
+    } else if (player->onGround == 1 && player->health > 0) {
         if (player->velocity.x != 0) {
             if (frameCounter >= frameSpeedRun) {
                 player->currentFrame++;
@@ -189,6 +218,7 @@ void updatePlayer(Player *player, float speed, int **map, int tileSize) {
                 player->fallFrame++;
                 if (player->fallFrame >= maxFrameFall) {
                     player->fallFrame = 0;
+                    
                 }
                 frameCounter = 0;
             }
@@ -246,7 +276,6 @@ void collision(Player *player, int **map, int dir, int tileSize) {
 }
 
 void drawPlayer(Player *player) {
-    //DrawRectangle(player->position.x, player->position.y, player->tileSize, player->tileSize, RED);
     // отрисовка пыли под игроком
     if (player->dustBeforeAnimationActive == 1) {
         frameRectDust.x = (float)player->dustFrame * (float)textureBeforeJump.width / maxFrameBeforeAfterJump;
@@ -259,7 +288,13 @@ void drawPlayer(Player *player) {
 
     // отрисовка игрока
     frameRect.width = player->flip ? -fabs(frameRect.width) : fabs(frameRect.width); 
-    if (player->onGround == 1 && player->health > 0) {
+    if (player->isAttack == 1) {
+        frameRectAttack.width = player->flip ? -fabs(frameRectAttack.width) : fabs(frameRectAttack.width);
+        frameRectAttack.x = player->currentAttackFrame * (textureAttack.width / maxFrameAttack);
+        DrawTextureRec(textureAttack, frameRectAttack, (Vector2){player->position.x - (textureAttack.width / maxFrameAttack - player->tileSize) / 2, 
+                                                            player->position.y - (textureAttack.height - player->tileSize)}, WHITE);
+    }
+    else if (player->onGround == 1 && player->health > 0) {
         if (player->velocity.x != 0) {
             frameRect.x = player->currentFrame * (textureRun.width / maxFrameRun);
             DrawTextureRec(textureRun, frameRect, (Vector2){player->position.x - (textureIdle.width / maxFrameIdle - player->tileSize) / 2, 
