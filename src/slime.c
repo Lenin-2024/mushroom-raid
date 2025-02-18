@@ -90,8 +90,6 @@ void updateSlime(Slime *slime, Player *player, int **map) {
         }
     }
 
-    printf("%f\n", player->attackWidth);
-
     // проверка ударил ли игрок слайма
     float attackEndX = player->position.x + (player->attackWidth > 0 ? player->attackWidth : 0);
     float attackStartX = player->position.x + (player->attackWidth < 0 ? player->attackWidth : 0);

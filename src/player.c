@@ -113,7 +113,6 @@ void updatePlayer(Player *player, float speed, int **map, int tileSize) {
 
     static int justLanded = 0;
     player->velocity.x = 0;
-
     player->attackWidth = player->flip ? -fabs(player->attackWidth) : fabs(player->attackWidth);
 
     if (IsKeyDown(KEY_LEFT) && player->health > 0) {
