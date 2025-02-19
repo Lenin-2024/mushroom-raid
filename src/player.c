@@ -43,7 +43,7 @@ void initializePlayer(float x, float y, Player *player) {
     player->dustAfterAnimationActive = 0;
     player->dustBeforeAnimationActive = 0;
     player->isAttack = 0;
-    player->attackWidth = 16;
+    player->attackWidth = 24;
 
     textureRun = LoadTexture("resource/herochar sprites(new)/herochar_run_anim_strip_6.png");
     if (textureRun.id == 0) {
@@ -290,8 +290,9 @@ void drawPlayer(Player *player) {
     if (player->isAttack == 1) {
         frameRectAttack.width = player->flip ? -fabs(frameRectAttack.width) : fabs(frameRectAttack.width);
         frameRectAttack.x = player->currentAttackFrame * (textureAttack.width / maxFrameAttack);
-        DrawTextureRec(textureAttack, frameRectAttack, (Vector2){player->position.x - (textureAttack.width / maxFrameAttack - player->tileSize) / 2, 
-                                                            player->position.y - (textureAttack.height - player->tileSize)}, WHITE);
+        DrawTextureRec(textureAttack, frameRectAttack, (Vector2){ player->flip ? player->position.x - (textureAttack.width / maxFrameAttack - player->tileSize) : 
+                                                                                 player->position.x - (textureAttack.width / maxFrameAttack - player->tileSize) / player->tileSize, 
+                                                                 player->position.y - (textureAttack.height - player->tileSize)}, WHITE);
     }
     else if (player->onGround == 1 && player->health > 0) {
         if (player->velocity.x != 0) {
