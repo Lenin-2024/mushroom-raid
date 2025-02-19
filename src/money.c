@@ -9,8 +9,11 @@ const int maxFrameMoneyPickUp = 6;
 
 Texture2D textureMoneyIdle;
 Texture2D textureMoneyPickUp;
+
 Rectangle frameRectMoney;
 Rectangle frameRectMoneyPickUp;
+
+Sound soundPickUp;
 
 void initializeMoney(float x, float y, Money *money) {
     money->isAlive = 1;
@@ -21,8 +24,20 @@ void initializeMoney(float x, float y, Money *money) {
     money->frameCounter = 0;
 
     textureMoneyIdle = LoadTexture("resource/miscellaneous sprites/coin_anim_strip_6.png");
+    if (textureMoneyIdle.id == 0) {
+        exit(1);
+    }
     textureMoneyPickUp = LoadTexture("resource/miscellaneous sprites/coin_pickup_anim_strip_6.png");
-    
+    if (textureMoneyPickUp.id == 0) {
+        exit(1);
+    }
+
+    soundPickUp = LoadSound("resource/Sound/metallicheskiy-zvon.wav");
+    if (soundPickUp.stream.buffer == NULL) {
+       puts("ERROR: Failed to load sound");
+       exit(1);
+    }
+
     frameRectMoney = (Rectangle){
         0, 0,
         textureMoneyIdle.width / maxFrameMoneyIdle, textureMoneyIdle.height
@@ -44,6 +59,7 @@ void updateMoney(Money *money, float playerX, float playerY, int playerTileSize)
             money->isActivated = 1;
             money->frameCounter = 0;
             money->currentFrame = 0;
+            PlaySound(soundPickUp);
     }
 
     // idle анимация
@@ -68,7 +84,6 @@ void updateMoney(Money *money, float playerX, float playerY, int playerTileSize)
                 money->currentFrame = 0;
             }
             money->frameCounter = 0;
-
         }
     }
     //printf("ID: %d, Alive: %d, Position: [%f, %f], Frame: %d\n", id, money->isAlive, money->position.x, money->position.y, money->currentFrame);

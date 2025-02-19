@@ -170,7 +170,8 @@ void initialize(int **map, Vector2 *playerStartPosition, Camera2D *camera, int y
     if (initAll == 1) {
         InitWindow(windowWidth, windowHeight, "Мухоморный Рейд");
         SetTargetFPS(60);
-        
+        InitAudioDevice();
+
         camera->offset = (Vector2){ windowWidth / 2.0f, windowHeight / 2.0f };
         camera->zoom = 3.8f;
 
@@ -290,7 +291,8 @@ void unloadTextureAndMemory(int **map, int yMax) {
     unloadPlayerTexture();
     unloadMoneyTexture();
     unloadSlimeTexture();
-
+    CloseAudioDevice();
+    
     for (int i = 0; i < yMax; i++) {
         free(map[i]);
     }

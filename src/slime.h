@@ -30,6 +30,8 @@ extern Texture2D textureSlimeDeath;
 extern Rectangle frameRectSlimeRun;
 extern Rectangle frameRectSlimeIdle;
 
+extern Sound deathSound;
+
 void initializeSlime(float x, float y, Slime *slime);
 void updateSlime(Slime *slime, Player* player, int **map);
 void drawSlime(Slime *slime);

@@ -15,9 +15,12 @@ float playerDamage = 0.3f;
 Texture2D textureSlimeIdle;
 Texture2D textureSlimeRun;
 Texture2D textureSlimeDeath;
+
 Rectangle frameRectSlimeRun;
 Rectangle frameRectSlimeIdle;
 Rectangle frameRectSlimeDeath;
+
+Sound deathSound;
 
 void initializeSlime(float x, float y, Slime *slime) {
     slime->position = (Vector2){x, y - 0.1f};
@@ -58,6 +61,13 @@ void initializeSlime(float x, float y, Slime *slime) {
         0.0f, 0.0f,
         (float)textureSlimeDeath.width / maxFrameSlimeDeath, (float)textureSlimeDeath.height
     };
+
+    deathSound = LoadSound("resource/Sound/opa-kogo-to-hlopnuli.wav");
+    if (deathSound.stream.buffer == NULL) {
+       puts("ERROR: Failed to load sound");
+       exit(1);
+    }
+
 }
 
 void updateSlime(Slime *slime, Player *player, int **map) {
@@ -82,6 +92,7 @@ void updateSlime(Slime *slime, Player *player, int **map) {
             slime->currentFrame = 0;
             slime->frameCounter = 0;
             slime->velocity.x = 0;
+            PlaySound(deathSound);
         } else {
             if (playerDamage >= damageInterval && player->health > 0) {
                 player->health--;
@@ -101,6 +112,7 @@ void updateSlime(Slime *slime, Player *player, int **map) {
         slime->currentFrame = 0;
         slime->frameCounter = 0;
         slime->velocity.x = 0;
+        PlaySound(deathSound);
     }
 
     if (slime->dir == 0 && slime->isActivatedDeath != 1) {
@@ -191,4 +203,5 @@ void unloadSlimeTexture() {
     UnloadTexture(textureSlimeDeath);
     UnloadTexture(textureSlimeIdle);
     UnloadTexture(textureSlimeRun);
+    UnloadSound(deathSound);
 }

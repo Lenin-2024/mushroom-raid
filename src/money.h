@@ -18,6 +18,8 @@ extern Texture2D textureMoneyIdle;
 extern Texture2D textureMoneyPickUp;
 extern Rectangle frameRectMoney;
 
+extern Sound soundPickUp;
+
 void initializeMoney(float x, float y, Money *money);
 void updateMoney(Money *money, float playerX, float playerY, int playerTileSize);
 void drawMoney(Money *money);
