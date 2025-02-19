@@ -67,7 +67,7 @@ void updateSlime(Slime *slime, Player *player, int **map) {
     const float damageInterval = 0.5f;
 
     slime->velocity.x = 0;
-
+    
     // проверка коллизий
     playerDamage += GetFrameTime();
 
@@ -92,7 +92,7 @@ void updateSlime(Slime *slime, Player *player, int **map) {
 
     // проверка ударил ли игрок слайма
     float attackEndX = player->position.x + (player->attackWidth > 0 ? player->attackWidth : 0);
-    float attackStartX = player->position.x + (player->attackWidth < 0 ? player->attackWidth : 0);
+    float attackStartX = player->position.x + (player->attackWidth < 0 ? player->attackWidth + player->tileSize : 0);
     if ((attackStartX < (slime->position.x + slimeTileSize)) && (attackEndX > slime->position.x) && 
         (player->position.y < (slime->position.y + slimeTileSize)) && 
         ((player->position.y + player->tileSize) > slime->position.y) && 

@@ -43,7 +43,7 @@ void initializePlayer(float x, float y, Player *player) {
     player->dustAfterAnimationActive = 0;
     player->dustBeforeAnimationActive = 0;
     player->isAttack = 0;
-    player->attackWidth = 24;
+    player->attackWidth = 16;
 
     textureRun = LoadTexture("resource/herochar sprites(new)/herochar_run_anim_strip_6.png");
     if (textureRun.id == 0) {
