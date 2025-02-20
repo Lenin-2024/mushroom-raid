@@ -62,7 +62,7 @@ void initializeSlime(float x, float y, Slime *slime) {
         (float)textureSlimeDeath.width / maxFrameSlimeDeath, (float)textureSlimeDeath.height
     };
 
-    deathSound = LoadSound("resource/Sound/opa-kogo-to-hlopnuli.wav");
+    deathSound = LoadSound("resource/Sound/slimedeath.mp3");
     if (deathSound.stream.buffer == NULL) {
        puts("ERROR: Failed to load sound");
        exit(1);
@@ -199,7 +199,7 @@ void drawSlime(Slime *slime) {
     }
 }
 
-void unloadSlimeTexture() {
+void unloadSlime() {
     UnloadTexture(textureSlimeDeath);
     UnloadTexture(textureSlimeIdle);
     UnloadTexture(textureSlimeRun);

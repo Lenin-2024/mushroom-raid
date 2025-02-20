@@ -35,7 +35,7 @@ extern Sound deathSound;
 void initializeSlime(float x, float y, Slime *slime);
 void updateSlime(Slime *slime, Player* player, int **map);
 void drawSlime(Slime *slime);
-void unloadSlimeTexture();
 void collisionWithMap(Slime *slime, int **map, int tileSize);
+void unloadSlime();
 
 #endif

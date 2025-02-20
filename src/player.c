@@ -24,6 +24,10 @@ Texture2D textureAfterJump;
 Texture2D textureBeforeJump;
 Texture2D textureAttack;
 
+Sound soundRun;
+Sound soundAttack;
+Sound soundJump;
+
 Rectangle frameRect;
 Rectangle frameRectDust;
 Rectangle frameRectAttack;
@@ -83,6 +87,21 @@ void initializePlayer(float x, float y, Player *player) {
         exit(1);
     }
 
+    soundRun = LoadSound("resource/Sound/barrelstart.mp3");
+    if (soundRun.stream.buffer == NULL) {
+       exit(1);
+    }
+
+    soundAttack = LoadSound("resource/Sound/attack.mp3");
+    if (soundAttack.stream.buffer == NULL) {
+       exit(1);
+    }
+
+    soundJump = LoadSound("resource/Sound/playerjump.mp3");
+    if (soundJump.stream.buffer == NULL) {
+       exit(1);
+    }
+
     frameRect = (Rectangle){
         0.0f, 0.0f, 
         textureIdle.width / maxFrameIdle, textureIdle.height 
@@ -115,13 +134,22 @@ void updatePlayer(Player *player, float speed, int **map, int tileSize) {
     player->velocity.x = 0;
     player->attackWidth = player->flip ? -fabs(player->attackWidth) : fabs(player->attackWidth);
 
-    if (IsKeyDown(KEY_LEFT) && player->health > 0) {
+    if (IsKeyDown(KEY_LEFT) && (player->health > 0)) {
         player->velocity.x -= speed;
         player->flip = 1;
-    }
-    if (IsKeyDown(KEY_RIGHT) && player->health > 0) {
+        if (!IsSoundPlaying(soundRun) && player->onGround) {
+            PlaySound(soundRun);
+        }
+    } else if (IsKeyDown(KEY_RIGHT) && (player->health > 0)) {
         player->velocity.x += speed;
         player->flip = 0;
+        if (!IsSoundPlaying(soundRun) && player->onGround) {
+            PlaySound(soundRun);
+        }
+    } else {
+        if (!IsSoundPlaying(soundRun)) {
+            StopSound(soundRun);
+        }        
     }
    
     if (player->onGround && player->health > 0) {
@@ -138,10 +166,11 @@ void updatePlayer(Player *player, float speed, int **map, int tileSize) {
             player->dustAfterAnimationActive = 0;
             justLanded = 1;
             dustPosition = (Vector2){player->position.x - player->tileSize / 4, player->position.y - player->tileSize / 4};
+            PlaySound(soundJump);
         }
         if (IsKeyPressed(KEY_SPACE) && (player->isAttack == 0)) {
-            
             player->isAttack = 1;
+            PlaySound(soundAttack);
         }
     } else {
         if ((fallCheck == 1) && (player->velocity.y > 0)) {
@@ -150,7 +179,7 @@ void updatePlayer(Player *player, float speed, int **map, int tileSize) {
         fallCheck = 0;
         player->velocity.y += gravity;
     }
-    
+
     player->position.x += player->velocity.x;
     collision(player, map, 0, tileSize);
     
@@ -321,11 +350,14 @@ void drawPlayer(Player *player) {
     }
 }
 
-void unloadPlayerTexture() {
+void unloadPlayer() {
     UnloadTexture(textureIdle);
     UnloadTexture(textureRun);
     UnloadTexture(textureFall);
     UnloadTexture(textureJump);
     UnloadTexture(textureAfterJump);
     UnloadTexture(textureBeforeJump);
+    UnloadSound(soundRun);
+    UnloadSound(soundAttack);
+    UnloadSound(soundJump);
 }

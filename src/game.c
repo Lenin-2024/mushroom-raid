@@ -288,9 +288,9 @@ void unloadTextureAndMemory(int **map, int yMax) {
     UnloadTexture(foreground);
     UnloadTexture(textureHealthHud);
     UnloadTexture(textureMenu);
-    unloadPlayerTexture();
-    unloadMoneyTexture();
-    unloadSlimeTexture();
+    unloadPlayer();
+    unloadMoney();
+    unloadSlime();
     CloseAudioDevice();
     
     for (int i = 0; i < yMax; i++) {

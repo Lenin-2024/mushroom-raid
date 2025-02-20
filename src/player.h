@@ -15,6 +15,10 @@ extern Texture2D textureAfterJump;
 extern Texture2D textureBeforeJump;
 extern Texture2D textureAttack;
 
+extern Sound soundRun;
+extern Sound soundAttack;
+extern Sound soundJump;
+
 extern const int maxFrameRun;
 extern const int maxFrameIdle;
 extern const int maxFrameJump;
@@ -52,6 +56,6 @@ void initializePlayer(float x, float y, Player *player);
 void updatePlayer(Player *player, float speed, int **map, int tileSize);
 void drawPlayer(Player *player);
 void collision(Player *player, int **map, int dir, int tileSize);
-void unloadPlayerTexture();
+void unloadPlayer();
 
 #endif

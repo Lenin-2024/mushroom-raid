@@ -32,7 +32,7 @@ void initializeMoney(float x, float y, Money *money) {
         exit(1);
     }
 
-    soundPickUp = LoadSound("resource/Sound/metallicheskiy-zvon.wav");
+    soundPickUp = LoadSound("resource/Sound/pickupmoney.wav");
     if (soundPickUp.stream.buffer == NULL) {
        puts("ERROR: Failed to load sound");
        exit(1);
@@ -100,7 +100,8 @@ void drawMoney(Money *money) {
     }
 }
 
-void unloadMoneyTexture() {
+void unloadMoney() {
     UnloadTexture(textureMoneyPickUp);
     UnloadTexture(textureMoneyIdle);
+    UnloadSound(soundPickUp);
 }
