@@ -1,6 +1,7 @@
 CC := gcc
-CFLAGS := -Wall -g -I"/home/misha/Рабочий стол/myC/test/raylib/include"
-LDFLAGS := -L"/home/misha/Рабочий стол/myC/test/raylib/src" -lraylib -lm -lpthread -ldl -lrt -lX11
+
+CFLAGS := -Wall -g -I"./raylib/include"
+LDFLAGS := -L"./raylib/src" -lraylib -lm -lpthread -ldl -lrt -lX11
 
 TARGET := game
 

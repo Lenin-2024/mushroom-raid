@@ -24,7 +24,8 @@ Texture2D textureGround;
 Texture2D texturePlayer;
 Texture2D textureMoney;
 Texture2D textureSlime;
-Rectangle arrayGround[21];
+Texture2D textureBomber;
+Rectangle arrayGround[22];
 
 int main(int argc, char **argv) {    
     InitWindow(windowWidth, windowHeight, "TileMapEditor");
@@ -72,7 +73,7 @@ int main(int argc, char **argv) {
         if (IsKeyDown(KEY_DOWN)) {
             tarPos.y += 5;
         }
-        
+
         camera.target = (Vector2) { tarPos.x + 20.0f, tarPos.y + 20.0f };
 
         if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
@@ -156,8 +157,13 @@ void initTexture() {
     }
 
     textureSlime = LoadTexture("resource/enemies sprites/slime/slime_idle_anim_strip_5.png");
-    if (textureMoney.id == 0) {
+    if (textureSlime.id == 0) {
         printf("Ошибка загрузки текстуры слизня!\n");
+    }
+
+    textureBomber = LoadTexture("resource/enemies sprites/bomber goblin/bomber_goblin_idle_anim_strip_4.png");
+    if (textureBomber.id == 0) {
+        exit(1);
     }
 
     //printf("Width: %d, Height: %d\n", texturePlayer.width, texturePlayer.height);
@@ -191,21 +197,21 @@ void drawMap() {
                 Rectangle sourceRect = { 0, 0, texturePlayer.width, texturePlayer.height };
                 Rectangle destRect = { position.x, position.y, backGroundSize, backGroundSize };
                 DrawTexturePro(texturePlayer, sourceRect, destRect, (Vector2){0, 0}, 0.0f, WHITE);
-            }
-            else if (tileType == 20) {
+            } else if (tileType == 20) {
                 Rectangle sourceRect = { 0, 0, textureMoney.width, textureMoney.height };
                 Rectangle destRect = { position.x, position.y, backGroundSize, backGroundSize };
                 DrawTexturePro(textureMoney, sourceRect, destRect, (Vector2){0, 0}, 0.0f, WHITE);
-            }
-            else if (tileType == 21) {
+            } else if (tileType == 21) {
                 Rectangle sourceRect = { 0, 0, textureSlime.width / 5, textureSlime.height };
                 Rectangle destRect = { position.x, position.y, backGroundSize, backGroundSize };
                 DrawTexturePro(textureSlime, sourceRect, destRect, (Vector2){0, 0}, 0.0f, WHITE);
-            }
-            else if (tileType > 0 && tileType <= sizeof(arrayGround) / sizeof(arrayGround[0])) {
+            } else if (tileType == 22) {
+                Rectangle sourceRect = { 0, 0, textureBomber.width / 4, textureBomber.height };
+                Rectangle destRect = { position.x, position.y, backGroundSize, backGroundSize };
+                DrawTexturePro(textureBomber, sourceRect, destRect, (Vector2){0, 0}, 0.0f, WHITE);
+            } else if (tileType > 0 && tileType <= sizeof(arrayGround) / sizeof(arrayGround[0])) {
                 DrawTextureRec(textureGround, arrayGround[tileType - 1], position, WHITE);
-            }
-            else {
+            } else {
                 DrawRectangle(position.x, position.y, backGroundSize, backGroundSize, RED);
             }
         }
@@ -231,19 +237,19 @@ void drawTextureSelector() {
             Rectangle sourceRect = { 0, 0, texturePlayer.width, texturePlayer.height };
             Rectangle destRect = { position.x, position.y, backGroundSize * scale, backGroundSize * scale };
             DrawTexturePro(texturePlayer, sourceRect, destRect, (Vector2){0, 0}, 0.0f, WHITE);
-        }
-        else if (i == 19) {
+        } else if (i == 19) {
             Rectangle sourceRect = { 0, 0, textureMoney.width, textureMoney.height };
             Rectangle destRect = { position.x, position.y, backGroundSize * scale, backGroundSize * scale };
             DrawTexturePro(textureMoney, sourceRect, destRect, (Vector2){0, 0}, 0.0f, WHITE);
-        }
-        else if (i == 20) {
+        } else if (i == 20) {
             Rectangle sourceRect = { 0, 0, textureSlime.width / 5, textureSlime.height };
             Rectangle destRect = { position.x, position.y, backGroundSize * scale, backGroundSize * scale };
             DrawTexturePro(textureSlime, sourceRect, destRect, (Vector2){0, 0}, 0.0f, WHITE);
-        }
-
-        else {
+        } else if (i == 21) {
+            Rectangle sourceRect = { 0, 0, textureBomber.width / 5, textureBomber.height };
+            Rectangle destRect = { position.x, position.y, backGroundSize * scale, backGroundSize * scale };
+            DrawTexturePro(textureBomber, sourceRect, destRect, (Vector2){0, 0}, 0.0f, WHITE);
+        } else {
             DrawTexturePro(textureGround, sourceRect, destRect, (Vector2){0, 0}, 0.0f, WHITE);
         }
 
