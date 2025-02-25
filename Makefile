@@ -5,7 +5,7 @@ LDFLAGS := -L"./raylib/src" -lraylib -lm -lpthread -ldl -lrt -lX11
 
 TARGET := game
 
-SRCS := src/game.c src/player.c src/map.c src/money.c src/slime.c
+SRCS := src/game.c src/player.c src/map.c src/money.c src/slime.c src/bomber.c
 
 OBJS := $(SRCS:.c=.o)
 

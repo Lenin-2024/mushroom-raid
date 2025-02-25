@@ -17,6 +17,8 @@ void initializeBomber(float x, float y, Bomber *bomber) {
     bomber->isAlive = 1;
     bomber->isActivatedDeath = 0;
     bomber->frameCounter = 0;
+
+    textureBomberIdle = LoadTexture("resource/enemies sprites/bomber goblin/bomber_goblin_idle_anim_strip_4.png");
     if (textureBomberIdle.id == 0) {
         puts("INFO: текстуры анимации ожидания слизня не загрузились");
         exit(1);
@@ -41,6 +43,7 @@ void updateBomber(Bomber *bomber, Player *player, int **map) {
         ((player->position.y + player->tileSize) > bomber->position.y) && 
         (bomber->isAlive == 1) && (bomber->isActivatedDeath == 0) && (player->isAttack == 1)) {
         bomber->isActivatedDeath = 1;
+        bomber->isAlive = 0;
         bomber->currentFrame = 0;
         bomber->frameCounter = 0;
         bomber->velocity.x = 0;

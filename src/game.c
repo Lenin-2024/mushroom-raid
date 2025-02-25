@@ -5,6 +5,7 @@
 #include "player.h"
 #include "map.h"
 #include "slime.h"
+#include "bomber.h"
 
 const int windowWidth = 640;
 const int windowHeight = 480;
@@ -16,6 +17,7 @@ int startGame = 0;
 void initTexture();
 void removeInactiveMoney();
 void removeInactiveSlime();
+void removeInactiveBomber();
 void unloadTextureAndMemory(int **map, int yMax);
 void initialize(int **map, Vector2 *playerStartPosition, Camera2D *camera, int yMax, int xMax, int initAll, char *nameMap);
 void draw(Camera2D *camera, int **map, int yMax, int xMax);
@@ -44,6 +46,9 @@ int countMoney = 0;
 Money *arrayMoney = NULL;
 int countSlime = 0;
 Slime *arraySlime = NULL;
+int countBomber = 0;
+Bomber *arrayBomber = NULL;
+
 
 int main(void) {
     int yMax = 15;
@@ -132,6 +137,11 @@ void update(int **map, Camera2D *camera) {
         updateSlime(&arraySlime[i], &player, map);
     }
     removeInactiveSlime();
+
+    for (int i = 0; i < countBomber; i++) {
+        updateBomber(&arrayBomber[i], &player, map);
+    }
+    removeInactiveBomber();
 }
 
 void draw(Camera2D *camera, int **map, int yMax, int xMax) {
@@ -146,6 +156,9 @@ void draw(Camera2D *camera, int **map, int yMax, int xMax) {
                 for (int i = 0; i < countSlime; i++) {
                     drawSlime(&arraySlime[i]);
                 }
+                for (int i = 0; i < countBomber; i++) {
+                    drawBomber(&arrayBomber[i]);
+                }
                 
                 drawPlayer(&player);
             EndMode2D();
@@ -157,15 +170,17 @@ void draw(Camera2D *camera, int **map, int yMax, int xMax) {
 
         DrawFPS(565, 0);
         //DrawText(TextFormat("player.position = [%f, %f]", player.position.x, player.position.y), 1, 50, 20, BLACK);
+        DrawText(TextFormat("bomberCount = [%d]", countBomber), 1, 1, 20, BLACK);
     EndDrawing();
 }
 
 void initialize(int **map, Vector2 *playerStartPosition, Camera2D *camera, int yMax, int xMax, int initAll, char *nameMap) {
     camera->target = (Vector2){player.position.x + (player.tileSize / 2), 
                                player.position.y + (player.tileSize / 2)};
-    
+
     arrayMoney = calloc(sizeof(Money), countMoney);
     arraySlime = calloc(sizeof(Slime), countSlime);
+    arrayBomber = calloc(sizeof(Bomber), countBomber);
     
     if (initAll == 1) {
         InitWindow(windowWidth, windowHeight, "Мухоморный Рейд");
@@ -223,18 +238,20 @@ void initialize(int **map, Vector2 *playerStartPosition, Camera2D *camera, int y
                 map[y][x] = 0;
             }
 
+            //---------------монетки---------------//
             if (map[y][x] == 20) {
                 countMoney++; 
-                //printf("%d\n", countMoney);
                 Money *money = malloc(sizeof(Money));
                 if (money == NULL) {
-                    free(money);
+                    countMoney--;
+                    continue;
                 }
 
                 Money *temp = realloc(arrayMoney, sizeof(Money) * countMoney);
                 if (temp == NULL) {
-                    free(arrayMoney);
-                    free(temp);
+                    free(money);
+                    countMoney--;
+                    continue;
                 } else {
                     arrayMoney = temp;
                 }
@@ -247,7 +264,6 @@ void initialize(int **map, Vector2 *playerStartPosition, Camera2D *camera, int y
                 }
 
                 map[y][x] = 0;
-                free(money);
             }
             
             if (map[y][x] == 21) {
@@ -255,13 +271,15 @@ void initialize(int **map, Vector2 *playerStartPosition, Camera2D *camera, int y
                 //printf("%d\n", countSlime);
                 Slime *slime = malloc(sizeof(Slime));
                 if (slime == NULL) {
-                    free(slime);
+                    countSlime--;
+                    continue;
                 }
 
                 Slime *temp = realloc(arraySlime, sizeof(Slime) * countSlime);
                 if (temp == NULL) {
-                    free(arraySlime);
-                    free(temp);
+                    free(slime);
+                    countSlime--;
+                    continue;
                 } else {
                     arraySlime = temp;
                 }
@@ -274,7 +292,34 @@ void initialize(int **map, Vector2 *playerStartPosition, Camera2D *camera, int y
                 }
 
                 map[y][x] = 0;
-                free(slime);
+            }
+
+            
+            if (map[y][x] == 22) {
+                countBomber++;
+                Bomber *bomber = malloc(sizeof(Bomber));
+                if (bomber == NULL) {
+                    countBomber--;
+                    continue;
+                }
+
+                Bomber *temp = realloc(arrayBomber, sizeof(Bomber) * countBomber);
+                if (temp == NULL) {
+                    free(bomber);
+                    countBomber--;
+                    continue;
+                } else {
+                    arrayBomber = temp;
+                }
+                
+                initializeBomber(x * backGroundSize, y * backGroundSize, bomber);
+                if (countBomber != 0) {
+                    arrayBomber[countBomber - 1] = *bomber;
+                } else {
+                    arrayBomber[0] = *bomber;
+                }
+
+                map[y][x] = 0;
             }
         }
     }
@@ -291,13 +336,18 @@ void unloadTextureAndMemory(int **map, int yMax) {
     unloadPlayer();
     unloadMoney();
     unloadSlime();
+    unloadBomber();
+    
     CloseAudioDevice();
     
     for (int i = 0; i < yMax; i++) {
         free(map[i]);
     }
     free(map);
+
     free(arrayMoney);
+    free(arraySlime);
+    free(arrayBomber);
 
     CloseWindow();
 }
@@ -341,4 +391,24 @@ void removeInactiveSlime() {
 
     arraySlime = newArraySlime;
     countSlime = newCountSlime;
+}
+
+void removeInactiveBomber() {
+    int newCountBomber = 0;
+    Bomber *newArrayBomber = malloc(sizeof(Bomber) * countBomber);
+    if (newArrayBomber == NULL) {
+        return;
+    }
+
+    for (int i = 0; i < countBomber; i++) {
+        if (arrayBomber[i].isAlive == 1) {
+            newArrayBomber[newCountBomber] = arrayBomber[i];
+            newCountBomber++;
+        }
+    }
+
+    free(arrayBomber);
+
+    arrayBomber = newArrayBomber;
+    countBomber = newCountBomber;
 }
