@@ -17,11 +17,13 @@ typedef struct Bomber {
 } Bomber;
 
 extern const int maxFrameBomberIdle;
+extern const int maxFrameBomberDeath;
 
 extern Texture2D textureBomberIdle;
+extern Texture2D textureBomberDeath;
 
 extern Rectangle frameRectBomberIdle;
-
+extern Rectangle frameRectBomberDeath;
 
 void initializeBomber(float x, float y, Bomber *bomber);
 void updateBomber(Bomber *bomber, Player* player, int **map);

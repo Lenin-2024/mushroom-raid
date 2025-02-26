@@ -1,6 +1,9 @@
 {
     "files.associations": {
         "stdlib.h": "c",
-        "stdio.h": "c"
-    }
+        "stdio.h": "c",
+        "bomber.h": "c",
+        "player.h": "c"
+    },
+    "cmake.sourceDirectory": "/home/misha/Рабочий стол/myC/test/raylib/src"
 }

@@ -29,6 +29,7 @@ extern Texture2D textureSlimeDeath;
 
 extern Rectangle frameRectSlimeRun;
 extern Rectangle frameRectSlimeIdle;
+extern Rectangle frameRectSlimeDeath;
 
 extern Sound deathSound;
 

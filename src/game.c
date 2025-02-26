@@ -232,13 +232,13 @@ void initialize(int **map, Vector2 *playerStartPosition, Camera2D *camera, int y
     // иницилизация карты
     for (int y = 0; y < yMax; y++) {
         for (int x = 0; x < xMax; x++) {
+            //-----------------игрок--------------------//
             if (map[y][x] == 19) {
                 initializePlayer(x * backGroundSize, y * backGroundSize, &player);
                 *playerStartPosition = (Vector2){ x * backGroundSize, y * backGroundSize };  
                 map[y][x] = 0;
             }
-
-            //---------------монетки---------------//
+            //----------------монетки--------------------//
             if (map[y][x] == 20) {
                 countMoney++; 
                 Money *money = malloc(sizeof(Money));
@@ -262,10 +262,9 @@ void initialize(int **map, Vector2 *playerStartPosition, Camera2D *camera, int y
                 } else {
                     arrayMoney[0] = *money;
                 }
-
                 map[y][x] = 0;
             }
-            
+            //----------------слизень--------------------//
             if (map[y][x] == 21) {
                 countSlime++;
                 //printf("%d\n", countSlime);
@@ -290,11 +289,9 @@ void initialize(int **map, Vector2 *playerStartPosition, Camera2D *camera, int y
                 } else {
                     arraySlime[0] = *slime;
                 }
-
                 map[y][x] = 0;
             }
-
-            
+            //----------------гоблин с бомбой--------------------//
             if (map[y][x] == 22) {
                 countBomber++;
                 Bomber *bomber = malloc(sizeof(Bomber));
@@ -318,7 +315,6 @@ void initialize(int **map, Vector2 *playerStartPosition, Camera2D *camera, int y
                 } else {
                     arrayBomber[0] = *bomber;
                 }
-
                 map[y][x] = 0;
             }
         }
