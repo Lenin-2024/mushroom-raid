@@ -6,6 +6,7 @@
 #include "player.h"
 
 const int bombTileSize = 8;
+const float bombGravity = 0.02f;
 
 const int maxFrameBombFly = 3;
 const int maxFrameBombActive = 8;
@@ -56,9 +57,15 @@ void initializeBomb(float x, float y, Bomb *bomb) {
 }
 
 void updateBomb(Bomb *bomb, Player *player, int **map) {
-    const float frameSpeedFly = 0.125f;
+    const float frameSpeedFly = 0.06f;
+
     bomb->velocity.x = 0;
-    bomb->velocity.y = 0;
+    bomb->velocity.y += gravity;
+
+    bomb->position.x += bomb->velocity.x;
+    collisionbWithMap(bomb, map, 0, 16);
+    bomb->position.y += bomb->velocity.y;
+    collisionbWithMap(bomb, map, 1, 16);
 
     if (bomb->isActivated == 1) {
         bomb->frameCounter += GetFrameTime();
@@ -73,6 +80,31 @@ void updateBomb(Bomb *bomb, Player *player, int **map) {
     }
 }
 
+void collisionbWithMap(Bomb *bomb, int **map, int dir, int tileSize) {
+    int startX = (int)(bomb->position.x / tileSize);
+    int endX = (int)((bomb->position.x + bombTileSize) / tileSize);
+    int startY = (int)(bomb->position.y / tileSize);
+    int endY = (int)((bomb->position.y + bombTileSize) / tileSize);
+    
+    for (int y = startY; y <= endY; y++) {
+        for (int x = startX; x <= endX; x++) {
+            if (map[y][x] > 0) {
+                if (bomb->velocity.x > 0 && dir == 0) {
+                    bomb->position.x = x * tileSize - bombTileSize - 0.1f;
+                }
+                if (bomb->velocity.x < 0 && dir == 0) {
+                    bomb->position.x = x * tileSize + tileSize + 0.1f;
+                }
+
+                // y
+                if (bomb->velocity.y > 0 && dir == 1) {
+                    bomb->position.y = y * tileSize + (bombTileSize / 8) - 0.1f;
+                    bomb->velocity.y = 0;
+                }
+            }
+        }
+    }
+}
 
 void drawBomb(Bomb *bomb) {
     if (bomb->isActivated == 1) {

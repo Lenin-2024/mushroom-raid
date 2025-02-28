@@ -157,7 +157,8 @@ void updatePlayer(Player *player, float speed, int **map, int tileSize) {
         if (justLanded == 1) {
             player->dustAfterAnimationActive = 1;
             justLanded = 0;
-            dustPosition = (Vector2){player->position.x - player->tileSize / 4, player->position.y - player->tileSize / 4};
+            dustPosition = (Vector2){player->position.x - player->tileSize / 4, 
+                                     player->position.y - player->tileSize / 4};
         }
         if (IsKeyDown(KEY_UP)) {
             player->velocity.y = -player->jumpHeight;
@@ -165,7 +166,8 @@ void updatePlayer(Player *player, float speed, int **map, int tileSize) {
             player->dustBeforeAnimationActive = 1;
             player->dustAfterAnimationActive = 0;
             justLanded = 1;
-            dustPosition = (Vector2){player->position.x - player->tileSize / 4, player->position.y - player->tileSize / 4};
+            dustPosition = (Vector2){player->position.x - player->tileSize / 4, 
+                                     player->position.y - player->tileSize / 4};
             PlaySound(soundJump);
         }
         if (IsKeyPressed(KEY_SPACE) && (player->isAttack == 0)) {

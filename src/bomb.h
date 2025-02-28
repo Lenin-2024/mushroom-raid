@@ -5,6 +5,7 @@
 #include "player.h"
 
 extern const int bombTileSize;
+extern const float bombGravity;
 
 typedef struct Bomb {
     Vector2 position;
@@ -31,6 +32,7 @@ extern Rectangle frameRectBombBooM;
 
 void initializeBomb(float x, float y, Bomb *bomb);
 void updateBomb(Bomb *bomb, Player* player, int **map);
+void collisionbWithMap(Bomb *bomb, int **map, int dir, int tileSize);
 void drawBomb(Bomb *bomb);
 void unloadBomb();
 
