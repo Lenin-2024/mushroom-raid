@@ -3,7 +3,9 @@
         "stdlib.h": "c",
         "stdio.h": "c",
         "bomber.h": "c",
-        "player.h": "c"
+        "player.h": "c",
+        "math.h": "c",
+        "raylib.h": "c"
     },
     "cmake.sourceDirectory": "/home/misha/Рабочий стол/myC/test/raylib/src"
 }

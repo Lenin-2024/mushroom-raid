@@ -20,6 +20,8 @@ void initializeBomber(float x, float y, Bomber *bomber) {
     bomber->isAlive = 1;
     bomber->isActivatedDeath = 0;
     bomber->frameCounter = 0;
+    bomber->flip = 1;
+    bomber->isAttack = 1;
 
     textureBomberIdle = LoadTexture("resource/enemies sprites/bomber goblin/bomber_goblin_idle_anim_strip_4.png");
     if (textureBomberIdle.id == 0) {
@@ -49,6 +51,12 @@ void updateBomber(Bomber *bomber, Player *player, int **map) {
     const float frameSpeedDeath = 0.125;
     bomber->velocity.x = 0;
     
+    if (player->position.x > bomber->position.x) {
+        bomber->flip = 0;
+    } else {
+        bomber->flip = 1;   
+    }
+
     // проверка ударил ли игрок слайма
     float attackEndX = player->position.x + (player->attackWidth > 0 ? player->attackWidth : 0);
     float attackStartX = player->position.x + (player->attackWidth < 0 ? player->attackWidth + player->tileSize : 0);

@@ -1,11 +1,14 @@
 #include <stdlib.h>
 #include <stdio.h>
+
 #include "raylib.h"
+
 #include "money.h"
 #include "player.h"
 #include "map.h"
 #include "slime.h"
 #include "bomber.h"
+#include "bomb.h"
 
 const int windowWidth = 640;
 const int windowHeight = 480;
@@ -44,13 +47,17 @@ int gamePause = 0;
 
 int countMoney = 0;
 Money *arrayMoney = NULL;
+
 int countSlime = 0;
 Slime *arraySlime = NULL;
+
 int countBomber = 0;
 Bomber *arrayBomber = NULL;
 
+Bomb arrayBomb[10] = {0};
+Bomb *currentBomb = NULL;
 
-int main(void) {
+int main(int argc, char *argv[]) {
     int yMax = 15;
     int xMax = 25;
     int **map = initializeMap(xMax, yMax);
@@ -138,8 +145,27 @@ void update(int **map, Camera2D *camera) {
     }
     removeInactiveSlime();
 
+    for (int i = 0; i < sizeof(arrayBomb) / sizeof(arrayBomb[0]); i++) {
+        if (arrayBomb[i].isActivated == 0) {
+            currentBomb = &arrayBomb[i];
+            break;
+        }
+    }
+
+    for (int i = 0; i < sizeof(arrayBomb) / sizeof(arrayBomb[0]); i++) {
+        if (arrayBomb[i].isActivated == 1) {
+            printf("Bomb[%d] before update: x = %f, y = %f, isActive = %d\n", i, arrayBomb[i].position.x, arrayBomb[i].position.y, arrayBomb[i].isActivated);
+            updateBomb(&arrayBomb[i], &player, map);
+            printf("Bomb[%d] after update: x = %f, y = %f, isActive = %d\n", i, arrayBomb[i].position.x, arrayBomb[i].position.y, arrayBomb[i].isActivated);
+        }
+    }
+
     for (int i = 0; i < countBomber; i++) {
         updateBomber(&arrayBomber[i], &player, map);
+        if (arrayBomber[i].isAttack == 1) {
+            initializeBomb(arrayBomber[i].position.x, arrayBomber[i].position.y, currentBomb);
+            arrayBomber[i].isAttack = 0;
+        }
     }
     removeInactiveBomber();
 }
@@ -160,6 +186,13 @@ void draw(Camera2D *camera, int **map, int yMax, int xMax) {
                     drawBomber(&arrayBomber[i]);
                 }
                 
+                for (int i = 0; i < sizeof(arrayBomb) / sizeof(arrayBomb[0]); i++) {                  
+                    if (arrayBomb[i].isActivated == 1) {
+                        printf("DRAW[%d]: x = %f, y = %f, isActive = %d\n", i, arrayBomb[i].position.x, arrayBomb[i].position.y, arrayBomb[i].isActivated);
+                        drawBomb(&arrayBomb[i]);
+                    }
+                }
+                
                 drawPlayer(&player);
             EndMode2D();
 
@@ -170,7 +203,6 @@ void draw(Camera2D *camera, int **map, int yMax, int xMax) {
 
         DrawFPS(565, 0);
         //DrawText(TextFormat("player.position = [%f, %f]", player.position.x, player.position.y), 1, 50, 20, BLACK);
-        DrawText(TextFormat("bomberCount = [%d]", countBomber), 1, 1, 20, BLACK);
     EndDrawing();
 }
 

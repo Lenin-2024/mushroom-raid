@@ -3,17 +3,19 @@
 
 #include "raylib.h"
 #include "player.h"
+#include "bomb.h"
 
 extern const int bomberTileSize;
 
 typedef struct Bomber {
     Vector2 position;
     Vector2 velocity;
+    float frameCounter;
     int currentFrame;
     int isAlive;
-    float frameCounter;
     int isActivatedDeath;
     int flip;
+    int isAttack;
 } Bomber;
 
 extern const int maxFrameBomberIdle;

@@ -1,11 +1,11 @@
 CC := gcc
 
-CFLAGS := -Wall -g -I"./raylib/include"
-LDFLAGS := -L"./raylib/src" -lraylib -lm -lpthread -ldl -lrt -lX11
+CFLAGS := -Wall -g -I"./raylib"
+LDFLAGS := -L"./raylib" -lraylib -lm -lpthread -ldl -lrt -lX11
 
 TARGET := game
 
-SRCS := src/game.c src/player.c src/map.c src/money.c src/slime.c src/bomber.c
+SRCS := src/game.c src/player.c src/map.c src/money.c src/slime.c src/bomber.c src/bomb.c
 
 OBJS := $(SRCS:.c=.o)
 
@@ -15,12 +15,12 @@ debug: CFLAGS += -DDEBUG -g
 debug: $(TARGET)
 
 $(TARGET): $(OBJS)
-	make -C ./raylib/src
+	make -C ./raylib
 	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	make clean -C ./raylib/src
+	make clean -C ./raylib
 	rm -f $(TARGET) $(OBJS)
