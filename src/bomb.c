@@ -58,9 +58,13 @@ void initializeBomb(float x, float y, Bomb *bomb) {
 
 void updateBomb(Bomb *bomb, Player *player, int **map) {
     const float frameSpeedFly = 0.06f;
-
     bomb->velocity.x = 0;
+    if (bomb->velocity.y != 0) {
+        bomb->velocity.x += 2.1f;
+    }    
+
     bomb->velocity.y += gravity;
+
 
     bomb->position.x += bomb->velocity.x;
     collisionbWithMap(bomb, map, 0, 16);
@@ -89,18 +93,28 @@ void collisionbWithMap(Bomb *bomb, int **map, int dir, int tileSize) {
     for (int y = startY; y <= endY; y++) {
         for (int x = startX; x <= endX; x++) {
             if (map[y][x] > 0) {
+                /*
                 if (bomb->velocity.x > 0 && dir == 0) {
                     bomb->position.x = x * tileSize - bombTileSize - 0.1f;
                 }
                 if (bomb->velocity.x < 0 && dir == 0) {
                     bomb->position.x = x * tileSize + tileSize + 0.1f;
                 }
+                */
 
                 // y
-                if (bomb->velocity.y > 0 && dir == 1) {
-                    bomb->position.y = y * tileSize + (bombTileSize / 8) - 0.1f;
+                /*
+                if (bomb->velocity.y < 0 && dir == 1) {
+                    bomb->position.y = y * tileSize + tileSize + 0.01f;
                     bomb->velocity.y = 0;
                 }
+                */
+
+                if (bomb->velocity.y > 0 && dir == 1) {
+                    bomb->position.y = y * tileSize;
+                    bomb->velocity.y = 0;
+                }
+
             }
         }
     }

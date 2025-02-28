@@ -156,7 +156,6 @@ void update(int **map, Camera2D *camera) {
         if (arrayBomb[i].isActivated == 1) {
             printf("Bomb[%d] before update: x = %f, y = %f, isActive = %d\n", i, arrayBomb[i].position.x, arrayBomb[i].position.y, arrayBomb[i].isActivated);
             updateBomb(&arrayBomb[i], &player, map);
-            printf("Bomb[%d] after update: x = %f, y = %f, isActive = %d\n", i, arrayBomb[i].position.x, arrayBomb[i].position.y, arrayBomb[i].isActivated);
         }
     }
 
@@ -206,14 +205,20 @@ void draw(Camera2D *camera, int **map, int yMax, int xMax) {
     EndDrawing();
 }
 
-void initialize(int **map, Vector2 *playerStartPosition, Camera2D *camera, int yMax, int xMax, int initAll, char *nameMap) {
+void initialize(int **map, Vector2 *playerStartPosition, Camera2D *camera, 
+                int yMax, int xMax, int initAll, char *nameMap) {
+
     camera->target = (Vector2){player.position.x + (player.tileSize / 2), 
                                player.position.y + (player.tileSize / 2)};
 
     arrayMoney = calloc(sizeof(Money), countMoney);
     arraySlime = calloc(sizeof(Slime), countSlime);
     arrayBomber = calloc(sizeof(Bomber), countBomber);
-    
+
+    for (int i = 0; i < sizeof(arrayBomb)/sizeof(arrayBomb[0]); i++) {
+        arrayBomb[i].isActivated = 0;
+    }
+
     if (initAll == 1) {
         InitWindow(windowWidth, windowHeight, "Мухоморный Рейд");
         SetTargetFPS(60);
@@ -267,7 +272,8 @@ void initialize(int **map, Vector2 *playerStartPosition, Camera2D *camera, int y
             //-----------------игрок--------------------//
             if (map[y][x] == 19) {
                 initializePlayer(x * backGroundSize, y * backGroundSize, &player);
-                *playerStartPosition = (Vector2){ x * backGroundSize, y * backGroundSize };  
+                *playerStartPosition = (Vector2){x * backGroundSize, 
+                                                 y * backGroundSize};  
                 map[y][x] = 0;
             }
             //----------------монетки--------------------//
