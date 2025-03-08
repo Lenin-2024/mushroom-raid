@@ -10,12 +10,13 @@ extern const int bomberTileSize;
 typedef struct Bomber {
     Vector2 position;
     Vector2 velocity;
-    float frameCounter;
-    int currentFrame;
     int isAlive;
     int isActivatedDeath;
+    int currentFrame;
+    float frameCounter;
     int flip;
     int isAttack;
+    int startAttckAnim;
 } Bomber;
 
 extern const int maxFrameBomberIdle;
@@ -23,8 +24,10 @@ extern const int maxFrameBomberDeath;
 
 extern Texture2D textureBomberIdle;
 extern Texture2D textureBomberDeath;
+extern Texture2D textureBomberAttack;
 
 extern Rectangle frameRectBomberIdle;
+extern Rectangle frameRectBomberAttack;
 extern Rectangle frameRectBomberDeath;
 
 void initializeBomber(float x, float y, Bomber *bomber);

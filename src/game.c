@@ -161,6 +161,11 @@ void update(int **map, Camera2D *camera) {
 
     for (int i = 0; i < countBomber; i++) {
         updateBomber(&arrayBomber[i], &player, map);
+        // временно
+        if (IsKeyPressed(KEY_F)) {
+            arrayBomber[i].isAttack = 1;
+            arrayBomber[i].startAttckAnim = 1;
+        }
         if (arrayBomber[i].isAttack == 1) {
             initializeBomb(arrayBomber[i].position.x, arrayBomber[i].position.y, currentBomb);
             arrayBomber[i].isAttack = 0;

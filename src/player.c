@@ -49,72 +49,108 @@ void initializePlayer(float x, float y, Player *player) {
     player->isAttack = 0;
     player->attackWidth = 24;
 
-    textureRun = LoadTexture("resource/herochar sprites(new)/herochar_run_anim_strip_6.png");
     if (textureRun.id == 0) {
-        puts("INFO: текстуры анимации бега игрока не загрузились");
-        exit(1);
+        textureRun = LoadTexture("resource/herochar sprites(new)/herochar_run_anim_strip_6.png");
+        if (textureRun.id == 0) {
+            puts("Ошибка: не удалось загрузить текстуру анимации бега игрока");
+            exit(1);
+        }
     }
-    textureIdle = LoadTexture("resource/herochar sprites(new)/herochar_idle_anim_strip_4.png");
+
     if (textureIdle.id == 0) {
-        puts("INFO: текстуры анимации ожидания игрока не загрузились");
-        exit(1);
+        textureIdle = LoadTexture("resource/herochar sprites(new)/herochar_idle_anim_strip_4.png");
+        if (textureIdle.id == 0) {
+            puts("Ошибка: не удалось загрузить текстуру анимации ожидания игрока");
+            exit(1);
+        }
     }
-    textureJump = LoadTexture("resource/herochar sprites(new)/herochar_jump_up_anim_strip_3.png");
+
     if (textureJump.id == 0) {
-       puts("INFO: текстуры анимации прыжка игрока не загрузились");
-       exit(1);
+        textureJump = LoadTexture("resource/herochar sprites(new)/herochar_jump_up_anim_strip_3.png");
+        if (textureJump.id == 0) {
+            puts("Ошибка: не удалось загрузить текстуру анимации прыжка вверх игрока");
+            exit(1);
+        }
     }
-    textureFall = LoadTexture("resource/herochar sprites(new)/herochar_jump_down_anim_strip_3.png");
-    if (textureJump.id == 0) {
-       puts("INFO: текстуры анимации прыжка игрока не загрузились");
-       exit(1);
+
+    if (textureFall.id == 0) {
+        textureFall = LoadTexture("resource/herochar sprites(new)/herochar_jump_down_anim_strip_3.png");
+        if (textureFall.id == 0) {
+            puts("Ошибка: не удалось загрузить текстуру анимации прыжка вниз игрока");
+            exit(1);
+        }
     }
-    textureDeath = LoadTexture("resource/herochar sprites(new)/herochar_death_anim_strip_8.png");
+
     if (textureDeath.id == 0) {
-       puts("INFO: текстуры анимации смерти игрока не загрузились");
-       exit(1);
+        textureDeath = LoadTexture("resource/herochar sprites(new)/herochar_death_anim_strip_8.png");
+        if (textureDeath.id == 0) {
+            puts("Ошибка: не удалось загрузить текстуру анимации смерти игрока");
+            exit(1);
+        }
     }
-    textureAfterJump = LoadTexture("resource/herochar sprites(new)/herochar_after_jump_dust_anim_strip_4.png");
+
     if (textureAfterJump.id == 0) {
-        exit(1);
+        textureAfterJump = LoadTexture("resource/herochar sprites(new)/herochar_after_jump_dust_anim_strip_4.png");
+        if (textureAfterJump.id == 0) {
+            puts("Ошибка: не удалось загрузить текстуру анимации пыли после прыжка игрока");
+            exit(1);
+        }
     }
-    textureBeforeJump = LoadTexture("resource/herochar sprites(new)/herochar_before_jump_dust_anim_strip_4.png");
-    if (textureAfterJump.id == 0) {
-        exit(1);
+
+    if (textureBeforeJump.id == 0) {
+        textureBeforeJump = LoadTexture("resource/herochar sprites(new)/herochar_before_jump_dust_anim_strip_4.png");
+        if (textureBeforeJump.id == 0) {
+            puts("Ошибка: не удалось загрузить текстуру анимации пыли перед прыжком игрока");
+            exit(1);
+        }
     }
-    textureAttack = LoadTexture("resource/herochar sprites(new)/herochar_sword_attack_anim_strip_4.png");
+
     if (textureAttack.id == 0) {
-        exit(1);
+        textureAttack = LoadTexture("resource/herochar sprites(new)/herochar_sword_attack_anim_strip_4.png");
+        if (textureAttack.id == 0) {
+            puts("Ошибка: не удалось загрузить текстуру анимации атаки игрока");
+            exit(1);
+        }
     }
 
-    soundRun = LoadSound("resource/Sound/barrelstart.mp3");
+    // Загрузка звуков только если они еще не загружены
     if (soundRun.stream.buffer == NULL) {
-       exit(1);
+        soundRun = LoadSound("resource/Sound/barrelstart.mp3");
+        if (soundRun.stream.buffer == NULL) {
+            puts("Ошибка: не удалось загрузить звук бега игрока");
+            exit(1);
+        }
     }
 
-    soundAttack = LoadSound("resource/Sound/attack.mp3");
     if (soundAttack.stream.buffer == NULL) {
-       exit(1);
+        soundAttack = LoadSound("resource/Sound/attack.mp3");
+        if (soundAttack.stream.buffer == NULL) {
+            puts("Ошибка: не удалось загрузить звук атаки игрока");
+            exit(1);
+        }
     }
 
-    soundJump = LoadSound("resource/Sound/playerjump.mp3");
     if (soundJump.stream.buffer == NULL) {
-       exit(1);
+        soundJump = LoadSound("resource/Sound/playerjump.mp3");
+        if (soundJump.stream.buffer == NULL) {
+            puts("Ошибка: не удалось загрузить звук прыжка игрока");
+            exit(1);
+        }
     }
 
     frameRect = (Rectangle){
         0.0f, 0.0f, 
-        textureIdle.width / maxFrameIdle, textureIdle.height 
+        (float)textureIdle.width / maxFrameIdle, (float)textureIdle.height 
     };
 
     frameRectDust = (Rectangle){
         0.0f, 0.0f,
-        textureBeforeJump.width / maxFrameBeforeAfterJump, textureBeforeJump.height
+        (float)textureBeforeJump.width / maxFrameBeforeAfterJump, (float)textureBeforeJump.height
     };
 
     frameRectAttack = (Rectangle){
         0.0f, 0.0f,
-        textureAttack.width / maxFrameAttack, textureAttack.height
+        (float)textureAttack.width / maxFrameAttack, (float)textureAttack.height
     };
 }
 

@@ -59,9 +59,14 @@ void initializeBomb(float x, float y, Bomb *bomb) {
 void updateBomb(Bomb *bomb, Player *player, int **map) {
     const float frameSpeedFly = 0.06f;
     bomb->velocity.x = 0;
+
     if (bomb->velocity.y != 0) {
-        bomb->velocity.x += 2.1f;
-    }    
+        if (player->position.x > bomb->position.x) {
+            bomb->velocity.x += 1.5f;
+        } else {
+            bomb->velocity.x -= 1.5f;
+        }
+    }
 
     bomb->velocity.y += gravity;
 

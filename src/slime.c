@@ -29,22 +29,28 @@ void initializeSlime(float x, float y, Slime *slime) {
     slime->frameCounter = 0;
     slime->dir = 0;
 
-    textureSlimeIdle = LoadTexture("resource/enemies sprites/slime/slime_idle_anim_strip_5.png");
     if (textureSlimeIdle.id == 0) {
-        puts("INFO: текстуры анимации ожидания слизня не загрузились");
-        exit(1);
+        textureSlimeIdle = LoadTexture("resource/enemies sprites/slime/slime_idle_anim_strip_5.png");
+        if (textureSlimeIdle.id == 0) {
+            puts("Ошибка: не удалось загрузить текстуру анимации ожидания слизня");
+            exit(1);
+        }
     }
 
-    textureSlimeRun = LoadTexture("resource/enemies sprites/slime/slime_walk_anim_strip_15.png");
-    if (textureSlimeIdle.id == 0) {
-        puts("INFO: текстуры анимации ожидания слизня не загрузились");
-        exit(1);
+    if (textureSlimeRun.id == 0) {
+        textureSlimeRun = LoadTexture("resource/enemies sprites/slime/slime_walk_anim_strip_15.png");
+        if (textureSlimeRun.id == 0) {
+            puts("Ошибка: не удалось загрузить текстуру анимации ходьбы слизня");
+            exit(1);
+        }
     }
 
-    textureSlimeDeath = LoadTexture("resource/enemies sprites/slime/slime_death_anim_strip_6.png");
     if (textureSlimeDeath.id == 0) {
-        puts("INFO: текстуры анимации ожидания слизня не загрузились");
-        exit(1);
+        textureSlimeDeath = LoadTexture("resource/enemies sprites/slime/slime_death_anim_strip_6.png");
+        if (textureSlimeDeath.id == 0) {
+            puts("Ошибка: не удалось загрузить текстуру анимации смерти слизня");
+            exit(1);
+        }
     }
 
     frameRectSlimeRun = (Rectangle) {
@@ -62,12 +68,13 @@ void initializeSlime(float x, float y, Slime *slime) {
         (float)textureSlimeDeath.width / maxFrameSlimeDeath, (float)textureSlimeDeath.height
     };
 
-    deathSound = LoadSound("resource/Sound/slimedeath.mp3");
     if (deathSound.stream.buffer == NULL) {
-       puts("ERROR: Failed to load sound");
-       exit(1);
+        deathSound = LoadSound("resource/Sound/slimedeath.mp3");
+        if (deathSound.stream.buffer == NULL) {
+            puts("Ошибка: не удалось загрузить звук смерти слизня");
+            exit(1);
+        }
     }
-
 }
 
 void updateSlime(Slime *slime, Player *player, int **map) {
