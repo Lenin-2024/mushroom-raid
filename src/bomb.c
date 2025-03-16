@@ -10,7 +10,7 @@ const float bombGravity = 0.02f;
 
 const int maxFrameBombFly = 3;
 const int maxFrameBombActive = 8;
-const int maxFrameBombBooM = 8;
+const int maxFrameBombBooM = 10;
 
 Texture2D textureBombFly;
 Texture2D textureBombActive;
@@ -25,17 +25,20 @@ void initializeBomb(float x, float y, Bomb *bomb) {
     bomb->isAlive = 1;
     bomb->isActivated = 1;
     bomb->frameCounter = 0;
+    bomb->currentFrame = 0;
+    bomb->state = BOMB_STATE_FLYING;
     
     textureBombFly = LoadTexture("resource/miscellaneous sprites/bomb_thrown_anim_strip_3.png");
     if (textureBombFly.id == 0) {
         exit(1);
     }
+   
     textureBombActive = LoadTexture("resource/miscellaneous sprites/bomb_on_ground_anim_strip_8.png");
     if (textureBombActive.id == 0) {
         exit(1);
     }
     
-    textureBombBooM = LoadTexture("resource/miscellaneous sprites/bomb_thrown_anim_strip_3.png");
+    textureBombBooM = LoadTexture("resource/miscellaneous sprites/explosion_anim_strip_10.png");
     if (textureBombBooM.id == 0) {
         exit(1);
     }
@@ -57,7 +60,9 @@ void initializeBomb(float x, float y, Bomb *bomb) {
 }
 
 void updateBomb(Bomb *bomb, Player *player, int **map) {
-    const float frameSpeedFly = 0.06f;
+    const float frameSpeedActive = 0.1f;
+    const float frameSpeedBoom = 0.1f;
+
     bomb->velocity.x = 0;
 
     if (bomb->velocity.y != 0) {
@@ -68,23 +73,55 @@ void updateBomb(Bomb *bomb, Player *player, int **map) {
         }
     }
 
-    bomb->velocity.y += gravity;
-
+    bomb->velocity.y += bombGravity;
 
     bomb->position.x += bomb->velocity.x;
     collisionbWithMap(bomb, map, 0, 16);
     bomb->position.y += bomb->velocity.y;
     collisionbWithMap(bomb, map, 1, 16);
 
-    if (bomb->isActivated == 1) {
+    if (bomb->state == BOMB_STATE_FLYING && bomb->velocity.y == 0) {
+        bomb->state = BOMB_STATE_ON_GROUND;
+        bomb->currentFrame = 0;
+        bomb->frameCounter = 0;
+    }
+
+    if (bomb->state == BOMB_STATE_ON_GROUND) {
         bomb->frameCounter += GetFrameTime();
-        if (bomb->frameCounter >= frameSpeedFly) {
+        if (bomb->frameCounter >= frameSpeedActive) {
             bomb->currentFrame++;
-            if (bomb->currentFrame >= maxFrameBombFly) {
+            if (bomb->currentFrame >= maxFrameBombActive) {
                 bomb->currentFrame = 0;
-                //bomb->isActivated = 0;
+                bomb->state = BOMB_STATE_EXPLODING;
             }
             bomb->frameCounter = 0;
+        }
+    }
+
+    if (bomb->state == BOMB_STATE_EXPLODING) {
+        bomb->frameCounter += GetFrameTime();
+        if (bomb->frameCounter >= frameSpeedBoom) {
+            bomb->currentFrame++;
+            if (bomb->currentFrame >= maxFrameBombBooM) {
+                bomb->isAlive = 0;
+            }
+            bomb->frameCounter = 0;
+        }
+    }
+}
+
+void drawBomb(Bomb *bomb) {
+    if (bomb->isAlive) {
+        if (bomb->state == BOMB_STATE_FLYING) {
+            frameRectBombFly.x = bomb->currentFrame * textureBombFly.width / maxFrameBombFly;
+            DrawTextureRec(textureBombFly, frameRectBombFly, (Vector2){bomb->position.x, bomb->position.y - (16 - bombTileSize)}, WHITE);
+        } else if (bomb->state == BOMB_STATE_ON_GROUND) {
+            frameRectBombActive.x = bomb->currentFrame * textureBombActive.width / maxFrameBombActive;
+            DrawTextureRec(textureBombActive, frameRectBombActive, (Vector2){bomb->position.x, bomb->position.y - (16 - bombTileSize)}, WHITE);
+        } else if (bomb->state == BOMB_STATE_EXPLODING) {
+            frameRectBombBooM.x = bomb->currentFrame * textureBombBooM.width / maxFrameBombBooM;
+            DrawTextureRec(textureBombBooM, frameRectBombBooM, (Vector2){bomb->position.x - (bombTileSize * 1.5), 
+                                                                         bomb->position.y - (bombTileSize << 2)}, WHITE);
         }
     }
 }
@@ -98,37 +135,12 @@ void collisionbWithMap(Bomb *bomb, int **map, int dir, int tileSize) {
     for (int y = startY; y <= endY; y++) {
         for (int x = startX; x <= endX; x++) {
             if (map[y][x] > 0) {
-                /*
-                if (bomb->velocity.x > 0 && dir == 0) {
-                    bomb->position.x = x * tileSize - bombTileSize - 0.1f;
-                }
-                if (bomb->velocity.x < 0 && dir == 0) {
-                    bomb->position.x = x * tileSize + tileSize + 0.1f;
-                }
-                */
-
-                // y
-                /*
-                if (bomb->velocity.y < 0 && dir == 1) {
-                    bomb->position.y = y * tileSize + tileSize + 0.01f;
-                    bomb->velocity.y = 0;
-                }
-                */
-
                 if (bomb->velocity.y > 0 && dir == 1) {
                     bomb->position.y = y * tileSize;
                     bomb->velocity.y = 0;
                 }
-
             }
         }
-    }
-}
-
-void drawBomb(Bomb *bomb) {
-    if (bomb->isActivated == 1) {
-        frameRectBombFly.x = bomb->currentFrame * textureBombFly.width / maxFrameBombFly;
-        DrawTextureRec(textureBombFly, frameRectBombFly, (Vector2){bomb->position.x, bomb->position.y - (16 - bombTileSize)}, WHITE);
     }
 }
 

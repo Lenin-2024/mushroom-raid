@@ -7,6 +7,12 @@
 extern const int bombTileSize;
 extern const float bombGravity;
 
+typedef enum {
+    BOMB_STATE_FLYING,
+    BOMB_STATE_ON_GROUND,
+    BOMB_STATE_EXPLODING
+} BombState;
+
 typedef struct Bomb {
     Vector2 position;
     Vector2 velocity;
@@ -16,6 +22,7 @@ typedef struct Bomb {
     int isAlive;
     int isActivated;
     int flip;
+    BombState state;
 } Bomb;
 
 extern const int maxFrameBombFly;
