@@ -154,7 +154,7 @@ void update(int **map, Camera2D *camera) {
 
     for (int i = 0; i < sizeof(arrayBomb) / sizeof(arrayBomb[0]); i++) {
         if (arrayBomb[i].isActivated == 1) {
-            printf("Bomb[%d] before update: x = %f, y = %f, isActive = %d\n", i, arrayBomb[i].position.x, arrayBomb[i].position.y, arrayBomb[i].isActivated);
+            //printf("Bomb[%d] before update: x = %f, y = %f, isActive = %d\n", i, arrayBomb[i].position.x, arrayBomb[i].position.y, arrayBomb[i].isActivated);
             updateBomb(&arrayBomb[i], &player, map);
         }
     }
@@ -162,7 +162,7 @@ void update(int **map, Camera2D *camera) {
     for (int i = 0; i < countBomber; i++) {
         updateBomber(&arrayBomber[i], &player, map);
         if (arrayBomber[i].isAttack == 1) {
-            initializeBomb(arrayBomber[i].position.x, arrayBomber[i].position.y, currentBomb);
+            initializeBomb(arrayBomber[i].position.x, arrayBomber[i].position.y, currentBomb, player.position.x, player.position.y);
             arrayBomber[i].isAttack = 0;
         }
     }
@@ -201,7 +201,7 @@ void draw(Camera2D *camera, int **map, int yMax, int xMax) {
         }
 
         DrawFPS(565, 0);
-        //DrawText(TextFormat("player.position = [%f, %f]", player.position.x, player.position.y), 1, 50, 20, BLACK);
+        DrawText(TextFormat("player.position = [%f, %f]", player.position.x, player.position.y), 1, 45, 20, BLACK);
     EndDrawing();
 }
 

@@ -83,9 +83,11 @@ void updateBomber(Bomber *bomber, Player *player, int **map) {
         bomber->flip = 1;
     }
 
+    const float heightTolerance = 10.0f; // lопустимая разница в высоте между бомбером и игроком
+
     if (fabs(player->position.x - bomber->position.x) < attackRange && 
-        bomber->isAlive && 
-        !bomber->isActivatedDeath && 
+        fabs(player->position.y - bomber->position.y) < heightTolerance &&
+        bomber->isAlive && !bomber->isActivatedDeath && 
         (GetTime() - bomber->lastAttackTime >= attackCooldown)) {
         bomber->startAttckAnim = 1;
         bomber->isAttack = 1;

@@ -6,7 +6,7 @@
 #include "player.h"
 
 const int bombTileSize = 8;
-const float bombGravity = 0.02f;
+const float bombGravity = 0.05f;
 
 const int maxFrameBombFly = 3;
 const int maxFrameBombActive = 8;
@@ -20,12 +20,15 @@ Rectangle frameRectBombFly;
 Rectangle frameRectBombActive;
 Rectangle frameRectBombBooM;
 
-void initializeBomb(float x, float y, Bomb *bomb) {
+Vector2 endPosition;
+
+void initializeBomb(float x, float y, Bomb *bomb, float plX, float plY) {
     bomb->position = (Vector2){x + 4, y};
     bomb->isAlive = 1;
     bomb->isActivated = 1;
     bomb->frameCounter = 0;
     bomb->currentFrame = 0;
+    endPosition = (Vector2){plX, plY};
     bomb->state = BOMB_STATE_FLYING;
     
     if (textureBombFly.id == 0) {
@@ -72,14 +75,15 @@ void updateBomb(Bomb *bomb, Player *player, int **map) {
     bomb->velocity.x = 0;
 
     if (bomb->velocity.y != 0) {
-        if (player->position.x > bomb->position.x) {
+        if (endPosition.x > bomb->position.x) {
             bomb->velocity.x += 1.5f;
         } else {
             bomb->velocity.x -= 1.5f;
         }
     }
-
+    
     bomb->velocity.y += bombGravity;
+    
 
     bomb->position.x += bomb->velocity.x;
     collisionbWithMap(bomb, map, 0, 16);
@@ -90,9 +94,7 @@ void updateBomb(Bomb *bomb, Player *player, int **map) {
         bomb->state = BOMB_STATE_ON_GROUND;
         bomb->currentFrame = 0;
         bomb->frameCounter = 0;
-    }
-
-    if (bomb->state == BOMB_STATE_ON_GROUND) {
+    } else if (bomb->state == BOMB_STATE_ON_GROUND) {
         bomb->frameCounter += GetFrameTime();
         if (bomb->frameCounter >= frameSpeedActive) {
             bomb->currentFrame++;
@@ -102,14 +104,13 @@ void updateBomb(Bomb *bomb, Player *player, int **map) {
             }
             bomb->frameCounter = 0;
         }
-    }
-
-    if (bomb->state == BOMB_STATE_EXPLODING) {
+    } else if (bomb->state == BOMB_STATE_EXPLODING) {
         bomb->frameCounter += GetFrameTime();
         if (bomb->frameCounter >= frameSpeedBoom) {
             bomb->currentFrame++;
             if (bomb->currentFrame >= maxFrameBombBooM) {
                 bomb->isAlive = 0;
+                bomb->isActivated = 0;
             }
             bomb->frameCounter = 0;
         }

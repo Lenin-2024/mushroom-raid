@@ -37,7 +37,7 @@ extern Rectangle frameRectBombFly;
 extern Rectangle frameRectBombActive;
 extern Rectangle frameRectBombBooM;
 
-void initializeBomb(float x, float y, Bomb *bomb);
+void initializeBomb(float x, float y, Bomb *bomb, float plX, float plY);
 void updateBomb(Bomb *bomb, Player* player, int **map);
 void collisionbWithMap(Bomb *bomb, int **map, int dir, int tileSize);
 void drawBomb(Bomb *bomb);
