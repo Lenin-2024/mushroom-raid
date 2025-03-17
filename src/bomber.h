@@ -17,6 +17,7 @@ typedef struct Bomber {
     int flip;
     int isAttack;
     int startAttckAnim;
+    float lastAttackTime;
 } Bomber;
 
 extern const int maxFrameBomberIdle;

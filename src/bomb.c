@@ -28,19 +28,25 @@ void initializeBomb(float x, float y, Bomb *bomb) {
     bomb->currentFrame = 0;
     bomb->state = BOMB_STATE_FLYING;
     
-    textureBombFly = LoadTexture("resource/miscellaneous sprites/bomb_thrown_anim_strip_3.png");
     if (textureBombFly.id == 0) {
-        exit(1);
+        textureBombFly = LoadTexture("resource/miscellaneous sprites/bomb_thrown_anim_strip_3.png");
+        if (textureBombFly.id == 0) {
+            exit(1);
+        }
     }
-   
-    textureBombActive = LoadTexture("resource/miscellaneous sprites/bomb_on_ground_anim_strip_8.png");
+
     if (textureBombActive.id == 0) {
-        exit(1);
+        textureBombActive = LoadTexture("resource/miscellaneous sprites/bomb_on_ground_anim_strip_8.png");
+        if (textureBombActive.id == 0) {
+            exit(1);
+        }
     }
-    
-    textureBombBooM = LoadTexture("resource/miscellaneous sprites/explosion_anim_strip_10.png");
+
     if (textureBombBooM.id == 0) {
-        exit(1);
+        textureBombBooM = LoadTexture("resource/miscellaneous sprites/explosion_anim_strip_10.png");
+        if (textureBombBooM.id == 0) {
+            exit(1);
+        }
     }
 
     frameRectBombFly = (Rectangle) {
@@ -145,7 +151,16 @@ void collisionbWithMap(Bomb *bomb, int **map, int dir, int tileSize) {
 }
 
 void unloadBomb() {
-    UnloadTexture(textureBombFly);
-    UnloadTexture(textureBombActive);
-    UnloadTexture(textureBombBooM);
+    if (textureBombFly.id != 0) {
+        UnloadTexture(textureBombFly);
+        textureBombFly.id = 0;
+    }
+    if (textureBombActive.id != 0) {
+        UnloadTexture(textureBombActive);
+        textureBombActive.id = 0;
+    }
+    if (textureBombBooM.id != 0) {
+        UnloadTexture(textureBombBooM);
+        textureBombBooM.id = 0;
+    }
 }

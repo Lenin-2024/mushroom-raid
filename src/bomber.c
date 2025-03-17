@@ -24,8 +24,9 @@ void initializeBomber(float x, float y, Bomber *bomber) {
     bomber->isActivatedDeath = 0;
     bomber->frameCounter = 0;
     bomber->flip = 1;
-    bomber->isAttack = 1;
-    bomber->startAttckAnim = 1;
+    bomber->isAttack = 0; // 1
+    bomber->startAttckAnim = 0; // 1
+    bomber->lastAttackTime = 0.0f;
 
     if (textureBomberIdle.id == 0) {
         textureBomberIdle = LoadTexture("resource/enemies sprites/bomber goblin/bomber_goblin_idle_anim_strip_4.png");
@@ -71,6 +72,8 @@ void updateBomber(Bomber *bomber, Player *player, int **map) {
     const float frameSpeedIdle = 0.09f;
     const float frameSpeedDeath = 0.125f;
     const float frameSpeedAttack = 0.09f;
+    const float attackRange = 50.0f;
+    const float attackCooldown = 2.0f;
 
     bomber->velocity.x = 0;
        
@@ -78,6 +81,17 @@ void updateBomber(Bomber *bomber, Player *player, int **map) {
         bomber->flip = 0;
     } else {
         bomber->flip = 1;
+    }
+
+    if (fabs(player->position.x - bomber->position.x) < attackRange && 
+        bomber->isAlive && 
+        !bomber->isActivatedDeath && 
+        (GetTime() - bomber->lastAttackTime >= attackCooldown)) {
+        bomber->startAttckAnim = 1;
+        bomber->isAttack = 1;
+        bomber->lastAttackTime = GetTime();
+    } else {
+        bomber->isAttack = 0;
     }
 
     float attackEndX = player->position.x + (player->attackWidth > 0 ? player->attackWidth : 0);

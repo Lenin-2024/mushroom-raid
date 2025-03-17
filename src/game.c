@@ -161,11 +161,6 @@ void update(int **map, Camera2D *camera) {
 
     for (int i = 0; i < countBomber; i++) {
         updateBomber(&arrayBomber[i], &player, map);
-        // временно
-        if (IsKeyPressed(KEY_F)) {
-            arrayBomber[i].isAttack = 1;
-            arrayBomber[i].startAttckAnim = 1;
-        }
         if (arrayBomber[i].isAttack == 1) {
             initializeBomb(arrayBomber[i].position.x, arrayBomber[i].position.y, currentBomb);
             arrayBomber[i].isAttack = 0;
@@ -192,7 +187,7 @@ void draw(Camera2D *camera, int **map, int yMax, int xMax) {
                 
                 for (int i = 0; i < sizeof(arrayBomb) / sizeof(arrayBomb[0]); i++) {                  
                     if (arrayBomb[i].isActivated == 1) {
-                        printf("DRAW[%d]: x = %f, y = %f, isActive = %d\n", i, arrayBomb[i].position.x, arrayBomb[i].position.y, arrayBomb[i].isActivated);
+                        //printf("DRAW[%d]: x = %f, y = %f, isActive = %d\n", i, arrayBomb[i].position.x, arrayBomb[i].position.y, arrayBomb[i].isActivated);
                         drawBomb(&arrayBomb[i]);
                     }
                 }
