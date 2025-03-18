@@ -25,7 +25,7 @@ void initializeBomber(float x, float y, Bomber *bomber) {
     bomber->frameCounter = 0;
     bomber->flip = 1;
     bomber->isAttack = 0; // 1
-    bomber->startAttckAnim = 0; // 1
+    bomber->startAttackAnim = 0; // 1
     bomber->lastAttackTime = 0.0f;
 
     if (textureBomberIdle.id == 0) {
@@ -87,9 +87,9 @@ void updateBomber(Bomber *bomber, Player *player, int **map) {
 
     if (fabs(player->position.x - bomber->position.x) < attackRange && 
         fabs(player->position.y - bomber->position.y) < heightTolerance &&
-        bomber->isAlive && !bomber->isActivatedDeath && 
+        bomber->isAlive && !bomber->isActivatedDeath && player->health > 0 &&
         (GetTime() - bomber->lastAttackTime >= attackCooldown)) {
-        bomber->startAttckAnim = 1;
+        bomber->startAttackAnim = 1;
         bomber->isAttack = 1;
         bomber->lastAttackTime = GetTime();
     } else {
@@ -110,12 +110,12 @@ void updateBomber(Bomber *bomber, Player *player, int **map) {
     }
 
     if (bomber->isAlive && !bomber->isActivatedDeath) {
-        if (bomber->startAttckAnim == 1) {
+        if (bomber->startAttackAnim == 1) {
             bomber->frameCounter += GetFrameTime();
             if (bomber->frameCounter >= frameSpeedAttack) {
                 bomber->currentFrame++;
                 if (bomber->currentFrame >= maxFrameBomberAttack) {
-                    bomber->startAttckAnim = 0;
+                    bomber->startAttackAnim = 0;
                     bomber->isAttack = 0;
                     bomber->currentFrame = 0;
                 }
@@ -146,7 +146,7 @@ void updateBomber(Bomber *bomber, Player *player, int **map) {
 
 void drawBomber(Bomber *bomber) {
     if (bomber->isActivatedDeath == 0) {
-        if (bomber->startAttckAnim == 1) {
+        if (bomber->startAttackAnim == 1) {
             frameRectBomberAttack.width = bomber->flip ? -fabs(frameRectBomberAttack.width) : fabs(frameRectBomberAttack.width);
             frameRectBomberAttack.x = (float)bomber->currentFrame * textureBomberAttack.width / maxFrameBomberAttack;
             DrawTextureRec(textureBomberAttack, frameRectBomberAttack, (Vector2){bomber->position.x, bomber->position.y}, WHITE);

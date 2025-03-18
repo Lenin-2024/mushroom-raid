@@ -16,7 +16,7 @@ typedef struct Bomber {
     float frameCounter;
     int flip;
     int isAttack;
-    int startAttckAnim;
+    int startAttackAnim;
     float lastAttackTime;
 } Bomber;
 

@@ -30,6 +30,8 @@ void initializeBomb(float x, float y, Bomb *bomb, float plX, float plY) {
     bomb->currentFrame = 0;
     endPosition = (Vector2){plX, plY};
     bomb->state = BOMB_STATE_FLYING;
+    bomb->damageDealt = 0;
+    bomb->bombRadius = bombTileSize * 4;
     
     if (textureBombFly.id == 0) {
         textureBombFly = LoadTexture("resource/miscellaneous sprites/bomb_thrown_anim_strip_3.png");
@@ -113,7 +115,19 @@ void updateBomb(Bomb *bomb, Player *player, int **map) {
                 bomb->isActivated = 0;
             }
             bomb->frameCounter = 0;
+        };
+        float playerCenterX = player->position.x + player->tileSize/2;
+        float playerCenterY = player->position.y + player->tileSize/2;
+        float bombCenterX = bomb->position.x + bombTileSize/2;
+        float bombCenterY = bomb->position.y + bombTileSize/2;
+        float sqrDistance = (playerCenterX - bombCenterX) * (playerCenterX - bombCenterX) + (playerCenterY - bombCenterY) * (playerCenterY - bombCenterY);
+        if (!bomb->damageDealt && sqrDistance <= bomb->bombRadius*bomb->bombRadius)
+        {
+            player->health -= 2;
+            bomb->damageDealt = 1;
+            if (player->health < 0){player->health = 0;}
         }
+        printf("distance - %.2f, explRad - %.2f\n",sqrDistance,bomb->bombRadius*bomb->bombRadius);
     }
 }
 

@@ -16,13 +16,14 @@ typedef enum {
 typedef struct Bomb {
     Vector2 position;
     Vector2 velocity;
-    float bombrRadius;
+    float bombRadius;
     float frameCounter;
     int currentFrame;
     int isAlive;
     int isActivated;
     int flip;
     BombState state;
+    int damageDealt;
 } Bomb;
 
 extern const int maxFrameBombFly;

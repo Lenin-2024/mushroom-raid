@@ -210,7 +210,7 @@ void updatePlayer(Player *player, float speed, int **map, int tileSize) {
             player->isAttack = 1;
             PlaySound(soundAttack);
         }
-    } else {
+    } else if (player->health > 0){
         if ((fallCheck == 1) && (player->velocity.y > 0)) {
             player->velocity.y = 0;
         }
