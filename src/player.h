@@ -32,6 +32,19 @@ extern int fallCheck;
 
 extern Vector2 dustPosition;
 
+
+typedef enum {
+    STATE_IDLE,
+    STATE_RUNNING,
+    STATE_JUMPING,
+    STATE_FALLING,
+    STATE_ATTACKING,
+    STATE_DEAD,
+    STATE_BEFORE_JUMP_DUST,
+    STATE_AFTER_JUMP_DUST
+} PlayerState;
+
+
 typedef struct Player {
     Vector2 position;
     Vector2 velocity;
@@ -50,6 +63,7 @@ typedef struct Player {
     int dustBeforeAnimationActive;
     int dustAfterAnimationActive;
     int isAttack;
+    PlayerState state;
 } Player;
 
 void initializePlayer(float x, float y, Player *player);
