@@ -1,8 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
-
 #include "raylib.h"
-
 #include "money.h"
 #include "player.h"
 #include "map.h"
@@ -13,8 +11,8 @@
 const int windowWidth = 640;
 const int windowHeight = 480;
 const int backGroundSize = 16;
-int unlockLevel = 1;
 
+int unlockLevel = 1;
 int startGame = 0;
 
 void initTexture();
@@ -29,12 +27,8 @@ void game(int **map, Vector2 *playerStartPosition, int yMax, int xMax);
 void drawMenu(int **map, Vector2 *playerStartPosition, int yMax, int xMax);
 
 Texture2D textureHealthHud;
-Texture2D midground;
-Texture2D foreground;
-Texture2D textureGround;
 Texture2D textureMenu;
 
-Rectangle arrayTexture[21];
 Rectangle arrayButtonNum[18];
 
 Rectangle healthRect;
@@ -107,7 +101,7 @@ void drawMenu(int **map, Vector2 *playerStartPosition, int yMax, int xMax) {
 
     BeginDrawing();
         ClearBackground(RAYWHITE);
-        drawBackGround(midground, foreground);
+        drawBackGround();
         for (int i = 0; i < unlockLevel; i++) {
             Rectangle sourceMenu = { i * 32 * 2.2f + windowWidth / 2 - (32 * unlockLevel), windowHeight / 2 - 32, textureMenu.width / 15 * 2.0f, textureMenu.height / 10 * 2.0f };
             DrawTexturePro(textureMenu, (Rectangle){12 * 32, i * 32, 32, 32}, sourceMenu, (Vector2){0, 0}, 0.0f, WHITE);
@@ -130,6 +124,10 @@ void game(int **map, Vector2 *playerStartPosition, int yMax, int xMax) {
 }
 
 void update(int **map, Camera2D *camera) {
+    if (player.state == STATE_DEAD && player.stopDeathAnim == 1) {
+        startGame = 0;
+    }
+
     camera->target = (Vector2){ player.position.x + (player.tileSize / 2), player.position.y + (player.tileSize / 2)};
 
     updatePlayer(&player, 1.5f, map, backGroundSize);
@@ -154,7 +152,6 @@ void update(int **map, Camera2D *camera) {
 
     for (int i = 0; i < sizeof(arrayBomb) / sizeof(arrayBomb[0]); i++) {
         if (arrayBomb[i].isActivated == 1) {
-            //printf("Bomb[%d] before update: x = %f, y = %f, isActive = %d\n", i, arrayBomb[i].position.x, arrayBomb[i].position.y, arrayBomb[i].isActivated);
             updateBomb(&arrayBomb[i], &player, map);
         }
     }
@@ -172,9 +169,9 @@ void update(int **map, Camera2D *camera) {
 void draw(Camera2D *camera, int **map, int yMax, int xMax) {
     BeginDrawing();
         ClearBackground(RAYWHITE);
-        drawBackGround(midground, foreground);                
+        drawBackGround();                
             BeginMode2D(*camera);
-                drawMap(map, xMax, yMax, backGroundSize, sizeof(arrayTexture)/sizeof(arrayTexture[0]), textureGround, arrayTexture);
+                drawMap(map, xMax, yMax, backGroundSize);
                 for (int i = 0; i < countMoney; i++) {
                     drawMoney(&arrayMoney[i]);
                 }
@@ -184,10 +181,9 @@ void draw(Camera2D *camera, int **map, int yMax, int xMax) {
                 for (int i = 0; i < countBomber; i++) {
                     drawBomber(&arrayBomber[i]);
                 }
-                
+
                 for (int i = 0; i < sizeof(arrayBomb) / sizeof(arrayBomb[0]); i++) {                  
                     if (arrayBomb[i].isActivated == 1) {
-                        //printf("DRAW[%d]: x = %f, y = %f, isActive = %d\n", i, arrayBomb[i].position.x, arrayBomb[i].position.y, arrayBomb[i].isActivated);
                         drawBomb(&arrayBomb[i]);
                     }
                 }
@@ -228,18 +224,6 @@ void initialize(int **map, Vector2 *playerStartPosition, Camera2D *camera,
         camera->zoom = 3.8f;
 
         // иницилизация текстур
-        midground = LoadTexture("resource/tiles and background_foreground (new)/bg_0.png");
-        if (midground.id == 0) {
-            exit(1);
-        }
-        foreground = LoadTexture("resource/tiles and background_foreground (new)/bg_1.png");
-        if (foreground.id == 0) {
-            exit(1);
-        }
-        textureGround = LoadTexture("resource/tiles and background_foreground (new)/tileset.png");
-        if (textureGround.id == 0) {
-            exit(1);
-        }
         textureHealthHud = LoadTexture("resource/hud elements/hearts_hud.png");
         if (textureHealthHud.id == 0) {
             exit(1);
@@ -249,34 +233,26 @@ void initialize(int **map, Vector2 *playerStartPosition, Camera2D *camera,
             exit(1);
         }
 
+        initTexture(backGroundSize);
+
         healthRect = (Rectangle){
             0, 0, textureHealthHud.width, textureHealthHud.height
         };
-
-        for (int y = 0; y < 3; y++) {
-            for (int x = 0; x < 6; x++) {
-                int index = y * 6 + x;
-                arrayTexture[index] = (Rectangle) {
-                    x * backGroundSize, y * backGroundSize,
-                    backGroundSize, backGroundSize
-                };
-            }
-        }
     }
 
     loadMap(nameMap, map, xMax, yMax);
 
-    // иницилизация карты
+    // Иницилизация карты
     for (int y = 0; y < yMax; y++) {
         for (int x = 0; x < xMax; x++) {
-            //-----------------игрок--------------------//
+            //-----------------Игрок--------------------//
             if (map[y][x] == 19) {
                 initializePlayer(x * backGroundSize, y * backGroundSize, &player);
                 *playerStartPosition = (Vector2){x * backGroundSize, 
                                                  y * backGroundSize};  
                 map[y][x] = 0;
             }
-            //----------------монетки--------------------//
+            //----------------Монетки--------------------//
             if (map[y][x] == 20) {
                 countMoney++; 
                 Money *money = malloc(sizeof(Money));
@@ -302,7 +278,7 @@ void initialize(int **map, Vector2 *playerStartPosition, Camera2D *camera,
                 }
                 map[y][x] = 0;
             }
-            //----------------слизень--------------------//
+            //----------------Слизень--------------------//
             if (map[y][x] == 21) {
                 countSlime++;
                 //printf("%d\n", countSlime);
@@ -329,7 +305,7 @@ void initialize(int **map, Vector2 *playerStartPosition, Camera2D *camera,
                 }
                 map[y][x] = 0;
             }
-            //----------------гоблин с бомбой--------------------//
+            //----------------Гоблин с бомбой--------------------//
             if (map[y][x] == 22) {
                 countBomber++;
                 Bomber *bomber = malloc(sizeof(Bomber));
@@ -360,13 +336,9 @@ void initialize(int **map, Vector2 *playerStartPosition, Camera2D *camera,
 }
 
 void unloadTextureAndMemory(int **map, int yMax) {
-    UnloadTexture(textureRun);
-    UnloadTexture(textureIdle);
-    UnloadTexture(textureGround);
-    UnloadTexture(midground);
-    UnloadTexture(foreground);
     UnloadTexture(textureHealthHud);
     UnloadTexture(textureMenu);
+    unloadTextureMap();
     unloadPlayer();
     unloadMoney();
     unloadSlime();

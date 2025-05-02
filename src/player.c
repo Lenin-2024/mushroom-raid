@@ -4,7 +4,6 @@
 #include "raylib.h"
 #include "player.h"
 
-// Константы анимаций
 const int maxFrameRun = 6;
 const int maxFrameIdle = 4;
 const int maxFrameJump = 3;
@@ -15,7 +14,6 @@ const int maxFrameAttack = 4;
 
 const float gravity = 0.05f;
 
-// Текстуры
 Texture2D textureRun;
 Texture2D textureIdle;
 Texture2D textureFall;
@@ -25,12 +23,10 @@ Texture2D textureAfterJump;
 Texture2D textureBeforeJump;
 Texture2D textureAttack;
 
-// Звуки
 Sound soundRun;
 Sound soundAttack;
 Sound soundJump;
 
-// Прямоугольники для анимаций
 Rectangle frameRect;
 Rectangle frameRectDust;
 Rectangle frameRectAttack;
@@ -144,7 +140,6 @@ void initializePlayer(float x, float y, Player *player) {
         }
     }
 
-    // Инициализация прямоугольников анимации
     frameRect = (Rectangle){
         0.0f, 0.0f, 
         (float)textureIdle.width / maxFrameIdle, (float)textureIdle.height 
@@ -338,7 +333,7 @@ void collision(Player *player, int **map, int dir, int tileSize) {
 
     for (int y = startY; y <= endY; y++) {
         for (int x = startX; x <= endX; x++) {
-            if (map[y][x] > 0) {
+            if (map[y][x] > 0 && map[y][x] <= 20) {
                 // коллизия по X
                 if (player->velocity.x > 0 && dir == 0) {
                     player->position.x = x * tileSize - player->tileSize - 0.1f;

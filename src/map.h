@@ -6,8 +6,10 @@ extern float scrollingFore;
 
 int **initializeMap(int xMax, int yMax);
 void loadMap(const char *filename, int **map, int xMax, int yMax);
-void drawMap(int **map, int xMax, int yMax, int backGroundSize, int size, Texture textureGround, Rectangle arrayGround[]);
-void drawBackGround(Texture2D midground, Texture2D foreground);
+void drawMap(int **map, int xMax, int yMax, int backGroundSize);
+void drawBackGround();
 void updateScrolling(float x);
+void initTexture(int backGroundSize);
+void unloadTextureMap();
 
 #endif

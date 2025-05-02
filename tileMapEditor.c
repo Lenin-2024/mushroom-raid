@@ -25,7 +25,8 @@ Texture2D texturePlayer;
 Texture2D textureMoney;
 Texture2D textureSlime;
 Texture2D textureBomber;
-Rectangle arrayGround[22];
+Texture2D textureGrass;
+Rectangle arrayGround[23];
 
 int main(int argc, char **argv) {    
     InitWindow(windowWidth, windowHeight, "TileMapEditor");
@@ -83,7 +84,6 @@ int main(int argc, char **argv) {
                 (mousePosition.y - (windowHeight / 2.0f)) / camera.zoom + camera.target.y
             };
 
-
             int mapX = (int)(mousePosition.x / backGroundSize);
             int mapY = (int)(mousePosition.y / backGroundSize);
             if (mapX >= 0 && mapX < xMax && mapY >= 0 && mapY < yMax) {
@@ -97,7 +97,6 @@ int main(int argc, char **argv) {
                 (mousePosition.x - (windowWidth / 2.0f)) / camera.zoom + camera.target.x,
                 (mousePosition.y - (windowHeight / 2.0f)) / camera.zoom + camera.target.y
             };
-
 
             int mapX = (int)(mousePosition.x / backGroundSize);
             int mapY = (int)(mousePosition.y / backGroundSize);
@@ -166,6 +165,11 @@ void initTexture() {
         exit(1);
     }
 
+    textureGrass = LoadTexture("resource/miscellaneous sprites/grass_props.png");
+    if (textureGrass.id == 0) {
+        exit(1);
+    }
+
     //printf("Width: %d, Height: %d\n", texturePlayer.width, texturePlayer.height);
 
     // загрузка текстур карты
@@ -209,9 +213,14 @@ void drawMap() {
                 Rectangle sourceRect = { 0, 0, textureBomber.width / 4, textureBomber.height };
                 Rectangle destRect = { position.x, position.y, backGroundSize, backGroundSize };
                 DrawTexturePro(textureBomber, sourceRect, destRect, (Vector2){0, 0}, 0.0f, WHITE);
+            } else if (tileType == 23) {
+                Rectangle sourceRect = { 0, 0, textureGrass.width, textureGrass.height };
+                Rectangle destRect = { position.x, position.y, backGroundSize, backGroundSize };
+                DrawTexturePro(textureGrass, sourceRect, destRect, (Vector2){0, 0}, 0.0f, WHITE);
             } else if (tileType > 0 && tileType <= sizeof(arrayGround) / sizeof(arrayGround[0])) {
                 DrawTextureRec(textureGround, arrayGround[tileType - 1], position, WHITE);
-            } else {
+            }
+            else {
                 DrawRectangle(position.x, position.y, backGroundSize, backGroundSize, RED);
             }
         }
@@ -229,10 +238,6 @@ void drawTextureSelector() {
             selectorY + (i / 6) * backGroundSize * scale 
         };
         
-        // Изменяем размеры текстуры, чтобы она заполняла весь квадрат
-        Rectangle sourceRect = arrayGround[i];
-        Rectangle destRect = { position.x, position.y, backGroundSize * scale, backGroundSize * scale };
-
         if (i == 18) {
             Rectangle sourceRect = { 0, 0, texturePlayer.width, texturePlayer.height };
             Rectangle destRect = { position.x, position.y, backGroundSize * scale, backGroundSize * scale };
@@ -249,7 +254,13 @@ void drawTextureSelector() {
             Rectangle sourceRect = { 0, 0, textureBomber.width / 5, textureBomber.height };
             Rectangle destRect = { position.x, position.y, backGroundSize * scale, backGroundSize * scale };
             DrawTexturePro(textureBomber, sourceRect, destRect, (Vector2){0, 0}, 0.0f, WHITE);
+        } else if (i == 22) {
+            Rectangle sourceRect = { 0, 0, textureGrass.width, textureGrass.height };
+            Rectangle destRect = { position.x, position.y, backGroundSize * scale, backGroundSize * scale };
+            DrawTexturePro(textureGrass, sourceRect, destRect, (Vector2){0, 0}, 0.0f, WHITE);
         } else {
+            Rectangle sourceRect = arrayGround[i];
+            Rectangle destRect = { position.x, position.y, backGroundSize * scale, backGroundSize * scale };
             DrawTexturePro(textureGround, sourceRect, destRect, (Vector2){0, 0}, 0.0f, WHITE);
         }
 
