@@ -7,6 +7,7 @@
 #include "slime.h"
 #include "bomber.h"
 #include "bomb.h"
+#include "vase.h"
 
 const int windowWidth = 640;
 const int windowHeight = 480;
@@ -47,6 +48,9 @@ Slime *arraySlime = NULL;
 
 int countBomber = 0;
 Bomber *arrayBomber = NULL;
+
+int countVase = 0;
+Vase *arrayVase = NULL;
 
 Bomb arrayBomb[10] = {0};
 Bomb *currentBomb = NULL;
@@ -143,6 +147,10 @@ void update(int **map, Camera2D *camera) {
     }
     removeInactiveSlime();
 
+    for (int i = 0; i < countVase; i++) {
+        updateVase(&player, &arrayVase[i]);
+    }
+
     for (int i = 0; i < sizeof(arrayBomb) / sizeof(arrayBomb[0]); i++) {
         if (arrayBomb[i].isActivated == 0) {
             currentBomb = &arrayBomb[i];
@@ -172,6 +180,9 @@ void draw(Camera2D *camera, int **map, int yMax, int xMax) {
         drawBackGround();                
             BeginMode2D(*camera);
                 drawMap(map, xMax, yMax, backGroundSize);
+                for (int i = 0; i < countVase; i++) {
+                    drawVase(&arrayVase[i]);
+                }
                 for (int i = 0; i < countMoney; i++) {
                     drawMoney(&arrayMoney[i]);
                 }
@@ -181,13 +192,11 @@ void draw(Camera2D *camera, int **map, int yMax, int xMax) {
                 for (int i = 0; i < countBomber; i++) {
                     drawBomber(&arrayBomber[i]);
                 }
-
                 for (int i = 0; i < sizeof(arrayBomb) / sizeof(arrayBomb[0]); i++) {                  
                     if (arrayBomb[i].isActivated == 1) {
                         drawBomb(&arrayBomb[i]);
                     }
                 }
-                
                 drawPlayer(&player);
             EndMode2D();
 
@@ -206,10 +215,24 @@ void initialize(int **map, Vector2 *playerStartPosition, Camera2D *camera,
 
     camera->target = (Vector2){player.position.x + (player.tileSize / 2), 
                                player.position.y + (player.tileSize / 2)};
+    
+    if (arrayBomber != NULL) {
+        free(arrayBomber);
+    }
+    if (arrayVase != NULL) {
+        free(arrayVase);     
+    }
+    if (arraySlime != NULL) {
+        free(arraySlime);
+    }
+    if (arrayMoney != NULL) {
+        free(arrayMoney);
+    }
 
     arrayMoney = calloc(sizeof(Money), countMoney);
     arraySlime = calloc(sizeof(Slime), countSlime);
     arrayBomber = calloc(sizeof(Bomber), countBomber);
+    arrayVase = calloc(sizeof(Vase), countVase);
 
     for (int i = 0; i < sizeof(arrayBomb)/sizeof(arrayBomb[0]); i++) {
         arrayBomb[i].isActivated = 0;
@@ -331,6 +354,33 @@ void initialize(int **map, Vector2 *playerStartPosition, Camera2D *camera,
                 }
                 map[y][x] = 0;
             }
+            //------------------Ваза----------------------------//
+            if (map[y][x] == 25) {
+                countVase++;
+                Vase *vase = malloc(sizeof(Vase));
+                if (vase == NULL) {
+                    countVase--;
+                    continue;
+                }
+
+                Vase *temp = realloc(arrayVase, sizeof(Vase) * countVase);
+                if (temp == NULL) {
+                    free(vase);
+                    countVase--;
+                    continue;
+                } else {
+                    arrayVase = temp;
+                }
+
+                initializeVase(x * backGroundSize, y * backGroundSize, vase);
+                if (countVase != 0) {
+                    arrayVase[countVase - 1] = *vase;
+                } else {
+                    arrayVase[0] = *vase;
+                }
+                map[y][x] = 0;
+            }
+
         }
     }
 }
@@ -354,6 +404,7 @@ void unloadTextureAndMemory(int **map, int yMax) {
     free(arrayMoney);
     free(arraySlime);
     free(arrayBomber);
+    free(arrayVase);
 
     CloseWindow();
 }

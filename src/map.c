@@ -7,6 +7,7 @@ Texture2D textureGrass;
 Texture2D textureGround;
 Texture2D midground;
 Texture2D foreground;
+Texture2D textureArrowsRight;
 
 float midScrollSpeed = 0.1f;   // Скорость среднего плана
 float foreScrollSpeed = 0.2f;  // Скорость переднего плана
@@ -33,6 +34,10 @@ void initTexture(int backGroundSize) {
     if (foreground.id == 0) {
         exit(1);
     }
+    textureArrowsRight = LoadTexture("resource/miscellaneous sprites/arrow_plate_right.png");
+    if (textureArrowsRight.id == 0) {
+        exit(1);
+    }
 
     for (int y = 0; y < 3; y++) {
         for (int x = 0; x < 6; x++) {
@@ -57,7 +62,6 @@ int **initializeMap(int xMax, int yMax) {
             map[y][x] = 0;
         }
     }
-
     return map;
 }
 
@@ -74,6 +78,10 @@ void drawMap(int **map, int xMax, int yMax, int backGroundSize) {
             if (tileType == 23) {
                 position.y += 8;
                 DrawTextureRec(textureGrass, (Rectangle){0, 0, 16, 8}, position, WHITE);
+            }
+            
+            if (tileType == 24) {
+                DrawTextureRec(textureArrowsRight, (Rectangle){0, 0, 16, 16}, position, WHITE);
             }
         }
     }

@@ -366,7 +366,6 @@ void drawPlayer(Player *player) {
 
     // отрисовка игрока
     frameRect.width = player->flip ? -fabs(frameRect.width) : fabs(frameRect.width);
-    
     switch (player->state) {
         case STATE_ATTACKING:
             frameRectAttack.width = player->flip ? -fabs(frameRectAttack.width) : fabs(frameRectAttack.width);
