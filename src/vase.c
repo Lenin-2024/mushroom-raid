@@ -16,18 +16,23 @@ void initializeVase(float x, float y, Vase *vase) {
     vase->position = (Vector2) {
         x, y
     };
+
     vase->state = STATE_ALIVE;
     vase->frameCounter = 0.0f;
     vase->currentFrame = 0.0f;
 
-    textureVase = LoadTexture("resource/miscellaneous sprites/vase.png");
     if (textureVase.id == 0) {
-        exit(1);
+        textureVase = LoadTexture("resource/miscellaneous sprites/vase.png");
+        if (textureVase.id == 0) {
+            exit(1);
+        }
     }
 
-    textureVaseDeath = LoadTexture("resource/miscellaneous sprites/vase_breaking_anim_strip_5.png");
-    if (textureVaseDeath.id == 0) {
-        exit(1);
+    if (textureVaseDeath.id == 0) { 
+        textureVaseDeath = LoadTexture("resource/miscellaneous sprites/vase_breaking_anim_strip_5.png");
+        if (textureVaseDeath.id == 0) {
+            exit(1);
+        }
     }
 
     frameRectVaseDeath = (Rectangle) {
@@ -59,13 +64,11 @@ void updateVase(Player *player, Vase *vase) {
                 vase->currentFrame = -1;
             }
         }
-    }
-
-    
+    }   
 }
 
 void drawVase(Vase *vase) {
-    switch (vase->state == STATE_ALIVE) {
+    switch (vase->state) {
         case STATE_ALIVE:
             DrawTexture(textureVase, vase->position.x, vase->position.y, RAYWHITE);
             break;
@@ -74,6 +77,8 @@ void drawVase(Vase *vase) {
             DrawTextureRec(textureVaseDeath, frameRectVaseDeath, (Vector2){vase->position.x, vase->position.y}, WHITE);
             break;
         case STATE_VASE_DESTROYED:
+            frameRectVaseDeath.x = (float)vase->currentFrame * textureVaseDeath.width / maxFrameVaseDeath;
+            DrawTextureRec(textureVaseDeath, frameRectVaseDeath, (Vector2){vase->position.x, vase->position.y}, WHITE);
             break;
     }
 }

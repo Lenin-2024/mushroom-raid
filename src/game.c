@@ -72,7 +72,6 @@ int main(int argc, char *argv[]) {
     }
 
     unloadTextureAndMemory(map, yMax);
-
     return 0;
 }
 
@@ -146,9 +145,11 @@ void update(int **map, Camera2D *camera) {
         updateSlime(&arraySlime[i], &player, map);
     }
     removeInactiveSlime();
-
+    
+    //printf("count = %d\n", countVase);
     for (int i = 0; i < countVase; i++) {
         updateVase(&player, &arrayVase[i]);
+        //printf("pos[%d] = {%f, %f}\n", i, arrayVase[i].position.x, arrayVase[i].position.y);
     }
 
     for (int i = 0; i < sizeof(arrayBomb) / sizeof(arrayBomb[0]); i++) {
@@ -229,9 +230,13 @@ void initialize(int **map, Vector2 *playerStartPosition, Camera2D *camera,
         free(arrayMoney);
     }
 
+    countMoney = 0;
     arrayMoney = calloc(sizeof(Money), countMoney);
+    countSlime = 0;
     arraySlime = calloc(sizeof(Slime), countSlime);
+    countBomber = 0;
     arrayBomber = calloc(sizeof(Bomber), countBomber);
+    countVase = 0;
     arrayVase = calloc(sizeof(Vase), countVase);
 
     for (int i = 0; i < sizeof(arrayBomb)/sizeof(arrayBomb[0]); i++) {
@@ -271,8 +276,10 @@ void initialize(int **map, Vector2 *playerStartPosition, Camera2D *camera,
             //-----------------Игрок--------------------//
             if (map[y][x] == 19) {
                 initializePlayer(x * backGroundSize, y * backGroundSize, &player);
-                *playerStartPosition = (Vector2){x * backGroundSize, 
-                                                 y * backGroundSize};  
+                *playerStartPosition = (Vector2) {
+                    x * backGroundSize, 
+                    y * backGroundSize
+                };  
                 map[y][x] = 0;
             }
             //----------------Монетки--------------------//
