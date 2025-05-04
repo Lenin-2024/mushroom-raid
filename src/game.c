@@ -8,6 +8,7 @@
 #include "bomber.h"
 #include "bomb.h"
 #include "vase.h"
+#include "stone.h"
 
 const int windowWidth = 640;
 const int windowHeight = 480;
@@ -51,6 +52,9 @@ Bomber *arrayBomber = NULL;
 
 int countVase = 0;
 Vase *arrayVase = NULL;
+
+int countStone = 0;
+Stone *arrayStone = NULL;
 
 Bomb arrayBomb[10] = {0};
 Bomb *currentBomb = NULL;
@@ -127,11 +131,20 @@ void game(int **map, Vector2 *playerStartPosition, int yMax, int xMax) {
 }
 
 void update(int **map, Camera2D *camera) {
+    printf("Count stone = %d\n", countStone);
+    printf("Count vase = %d\n", countVase);
+    printf("Count bomber = %d\n", countBomber);
+    printf("Count money = %d\n", countMoney);
+    printf("Count slime = %d\n\n", countSlime);
+
     if (player.state == STATE_DEAD && player.stopDeathAnim == 1) {
         startGame = 0;
     }
 
-    camera->target = (Vector2){ player.position.x + (player.tileSize / 2), player.position.y + (player.tileSize / 2)};
+    camera->target = (Vector2) {
+        player.position.x + (player.tileSize / 2), 
+        player.position.y + (player.tileSize / 2)
+    };
 
     updatePlayer(&player, 1.5f, map, backGroundSize);
     updateScrolling(player.position.x);
@@ -146,10 +159,12 @@ void update(int **map, Camera2D *camera) {
     }
     removeInactiveSlime();
     
-    //printf("count = %d\n", countVase);
     for (int i = 0; i < countVase; i++) {
         updateVase(&player, &arrayVase[i]);
-        //printf("pos[%d] = {%f, %f}\n", i, arrayVase[i].position.x, arrayVase[i].position.y);
+    }
+
+    for (int i = 0; i < countStone; i++) {
+        updateStone(&player, map, &arrayStone[i]);
     }
 
     for (int i = 0; i < sizeof(arrayBomb) / sizeof(arrayBomb[0]); i++) {
@@ -193,6 +208,9 @@ void draw(Camera2D *camera, int **map, int yMax, int xMax) {
                 for (int i = 0; i < countBomber; i++) {
                     drawBomber(&arrayBomber[i]);
                 }
+                for (int i = 0; i < countStone; i++) {
+                    drawStone(&arrayStone[i]);
+                }
                 for (int i = 0; i < sizeof(arrayBomb) / sizeof(arrayBomb[0]); i++) {                  
                     if (arrayBomb[i].isActivated == 1) {
                         drawBomb(&arrayBomb[i]);
@@ -217,11 +235,14 @@ void initialize(int **map, Vector2 *playerStartPosition, Camera2D *camera,
     camera->target = (Vector2){player.position.x + (player.tileSize / 2), 
                                player.position.y + (player.tileSize / 2)};
     
+    /*
+    if (arrayStone != NULL)
+
     if (arrayBomber != NULL) {
         free(arrayBomber);
     }
     if (arrayVase != NULL) {
-        free(arrayVase);     
+        free(arrayVase);
     }
     if (arraySlime != NULL) {
         free(arraySlime);
@@ -229,7 +250,10 @@ void initialize(int **map, Vector2 *playerStartPosition, Camera2D *camera,
     if (arrayMoney != NULL) {
         free(arrayMoney);
     }
+    */
 
+    countStone = 0;
+    arrayStone = calloc(sizeof(Stone), countStone);
     countMoney = 0;
     arrayMoney = calloc(sizeof(Money), countMoney);
     countSlime = 0;
@@ -387,7 +411,32 @@ void initialize(int **map, Vector2 *playerStartPosition, Camera2D *camera,
                 }
                 map[y][x] = 0;
             }
+            //-----------------Камни------------------//
+            if (map[y][x] == 26) {
+                countStone++;
+                Stone *stone = malloc(sizeof(Stone));
+                if (stone == NULL) {
+                    countStone--;
+                    continue;
+                }
 
+                Stone *temp = realloc(arrayStone, sizeof(Stone) * countStone);
+                if (temp == NULL) {
+                    free(stone);
+                    countStone--;
+                    continue;
+                } else {
+                    arrayStone = temp;
+                }
+
+                initializeStone(x * backGroundSize, y * backGroundSize, stone);
+                if (countStone != 0) {
+                    arrayStone[countStone - 1] = *stone;
+                } else {
+                    arrayStone[0] = *stone;
+                }
+                map[y][x] = 0;
+            }
         }
     }
 }
@@ -400,7 +449,8 @@ void unloadTextureAndMemory(int **map, int yMax) {
     unloadMoney();
     unloadSlime();
     unloadBomber();
-    
+    unloadStone();
+
     CloseAudioDevice();
     
     for (int i = 0; i < yMax; i++) {
@@ -412,7 +462,7 @@ void unloadTextureAndMemory(int **map, int yMax) {
     free(arraySlime);
     free(arrayBomber);
     free(arrayVase);
-
+    free(arrayStone);
     CloseWindow();
 }
 

@@ -28,7 +28,8 @@ Texture2D textureBomber;
 Texture2D textureGrass;
 Texture2D textureArrowsRight;
 Texture2D textureVase;
-Rectangle arrayGround[25];
+Texture2D textureStone;
+Rectangle arrayGround[26];
 
 int main(int argc, char **argv) {    
     InitWindow(windowWidth, windowHeight, "TileMapEditor");
@@ -139,41 +140,39 @@ void initTexture() {
     if (textureVase.id == 0) {
         exit(1);
     }
-
     textureGround = LoadTexture("resource/tiles and background_foreground (new)/tileset.png");
     if (textureGround.id == 0) {
         exit(1);
     }
-
     texturePlayer = LoadTexture("resource/hud elements/lifes_icon.png");
     if (texturePlayer.id == 0) {
         printf("Ошибка загрузки текстуры игрока!\n");
     }
-
     textureMoney = LoadTexture("resource/hud elements/coins_hud.png");
     if (textureMoney.id == 0) {
         printf("Ошибка загрузки текстуры монетки!\n");
     }
-
     textureSlime = LoadTexture("resource/enemies sprites/slime/slime_idle_anim_strip_5.png");
     if (textureSlime.id == 0) {
         printf("Ошибка загрузки текстуры слизня!\n");
     }
-
     textureBomber = LoadTexture("resource/enemies sprites/bomber goblin/bomber_goblin_idle_anim_strip_4.png");
     if (textureBomber.id == 0) {
         exit(1);
     }
-
     textureGrass = LoadTexture("resource/miscellaneous sprites/grass_props.png");
     if (textureGrass.id == 0) {
         exit(1);
     }
-
     textureArrowsRight = LoadTexture("resource/miscellaneous sprites/arrow_plate_right.png");
     if (textureArrowsRight.id == 0) {
         exit(1);
     }
+    textureStone = LoadTexture("resource/miscellaneous sprites/stone.png");
+    if (textureStone.id == 0) {
+        exit(1);
+    }
+    
     //printf("Width: %d, Height: %d\n", texturePlayer.width, texturePlayer.height);
 
     // загрузка текстур карты
@@ -229,6 +228,10 @@ void drawMap() {
                 Rectangle sourceRect = { 0, 0, textureVase.width, textureVase.height };
                 Rectangle destRect = { position.x, position.y, backGroundSize, backGroundSize };
                 DrawTexturePro(textureVase, sourceRect, destRect, (Vector2){0, 0}, 0.0f, WHITE);
+            } else if (tileType == 26) {
+                Rectangle sourceRect = { 0, 0, textureStone.width, textureStone.height };
+                Rectangle destRect = { position.x, position.y, backGroundSize, backGroundSize };
+                DrawTexturePro(textureStone, sourceRect, destRect, (Vector2){0, 0}, 0.0f, WHITE);
             } else if (tileType > 0 && tileType <= sizeof(arrayGround) / sizeof(arrayGround[0])) {
                 DrawTextureRec(textureGround, arrayGround[tileType - 1], position, WHITE);
             }
@@ -278,6 +281,10 @@ void drawTextureSelector() {
             Rectangle sourceRect = { 0, 0, textureVase.width, textureVase.height };
             Rectangle destRect = { position.x, position.y, backGroundSize * scale, backGroundSize * scale };
             DrawTexturePro(textureVase, sourceRect, destRect, (Vector2){0, 0}, 0.0f, WHITE);
+        } else if (i == 25) {
+            Rectangle sourceRect = { 0, 0, textureStone.width, textureStone.height };
+            Rectangle destRect = { position.x, position.y, backGroundSize * scale, backGroundSize * scale };
+            DrawTexturePro(textureStone, sourceRect, destRect, (Vector2){0, 0}, 0.0f, WHITE);
         } else {
             Rectangle sourceRect = arrayGround[i];
             Rectangle destRect = { position.x, position.y, backGroundSize * scale, backGroundSize * scale };
