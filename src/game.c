@@ -162,7 +162,7 @@ void update(int **map, Camera2D *camera) {
     for (int i = 0; i < countVase; i++) {
         updateVase(&player, &arrayVase[i]);
     }
-
+    
     for (int i = 0; i < countStone; i++) {
         updateStone(&player, map, &arrayStone[i]);
     }
@@ -202,14 +202,14 @@ void draw(Camera2D *camera, int **map, int yMax, int xMax) {
                 for (int i = 0; i < countMoney; i++) {
                     drawMoney(&arrayMoney[i]);
                 }
-                for (int i = 0; i < countSlime; i++) {
-                    drawSlime(&arraySlime[i]);
-                }
                 for (int i = 0; i < countBomber; i++) {
                     drawBomber(&arrayBomber[i]);
                 }
                 for (int i = 0; i < countStone; i++) {
                     drawStone(&arrayStone[i]);
+                }
+                for (int i = 0; i < countSlime; i++) {
+                    drawSlime(&arraySlime[i]);
                 }
                 for (int i = 0; i < sizeof(arrayBomb) / sizeof(arrayBomb[0]); i++) {                  
                     if (arrayBomb[i].isActivated == 1) {
@@ -232,8 +232,10 @@ void draw(Camera2D *camera, int **map, int yMax, int xMax) {
 void initialize(int **map, Vector2 *playerStartPosition, Camera2D *camera, 
                 int yMax, int xMax, int initAll, char *nameMap) {
 
-    camera->target = (Vector2){player.position.x + (player.tileSize / 2), 
-                               player.position.y + (player.tileSize / 2)};
+    camera->target = (Vector2){
+        player.position.x + (player.tileSize / 2), 
+        player.position.y + (player.tileSize / 2)
+    };
     
     /*
     if (arrayStone != NULL)
@@ -457,7 +459,6 @@ void unloadTextureAndMemory(int **map, int yMax) {
         free(map[i]);
     }
     free(map);
-
     free(arrayMoney);
     free(arraySlime);
     free(arrayBomber);

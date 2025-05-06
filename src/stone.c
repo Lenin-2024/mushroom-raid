@@ -71,9 +71,10 @@ void updateStone(Player *player, int **map, Stone *stone) {
     };
     
     if (CheckCollisionRecs(playerFeet, stoneTop) && player->velocity.y >= 0) {
+        player->state = STATE_IDLE;
         player->velocity.y = 0;
-        player->position.y = stone->position.y - player->tileSize - 1;
         player->onGround = 1;
+        player->position.y = stone->position.y - player->tileSize - 0.1f;
     }
 
     stone->position.y += stone->velocity.y;

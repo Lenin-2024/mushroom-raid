@@ -49,6 +49,7 @@ void initializePlayer(float x, float y, Player *player) {
     player->isAttack = 0;
     player->attackWidth = 24;
     player->state = STATE_IDLE;
+    player->stateDust = STATE_NO_DUST;
 
     // Загрузка текстур
     if (textureRun.id == 0) {
@@ -197,7 +198,7 @@ void updatePlayer(Player *player, float speed, int **map, int tileSize) {
         if (player->onGround && IsKeyPressed(KEY_UP)) {
             player->velocity.y = -player->jumpHeight;
             player->jumpFrame = 0;
-            player->state = STATE_BEFORE_JUMP_DUST;
+            player->stateDust = STATE_BEFORE_JUMP_DUST;
             dustPosition = (Vector2){player->position.x - player->tileSize / 4, 
                                     player->position.y - player->tileSize / 4};
             PlaySound(soundJump);
@@ -205,7 +206,7 @@ void updatePlayer(Player *player, float speed, int **map, int tileSize) {
         }
 
         // Атака
-        if (IsKeyPressed(KEY_SPACE) && !player->isAttack) {
+        if ((IsKeyPressed(KEY_SPACE) || IsKeyPressed(KEY_DOWN)) && !player->isAttack) {
             player->state = STATE_ATTACKING;
             player->isAttack = 1;
             player->currentAttackFrame = 0;
@@ -235,25 +236,27 @@ void updatePlayer(Player *player, float speed, int **map, int tileSize) {
             player->state = STATE_JUMPING;
         } else {
             player->state = STATE_FALLING;
-            
-            // При приземлении
-            if (player->onGround && justLanded) {
-                player->state = STATE_AFTER_JUMP_DUST;
-                dustPosition = (Vector2){player->position.x - player->tileSize / 4, 
-                                        player->position.y - player->tileSize / 4};
-                justLanded = 0;
-            }
         }
-    } else if (fabs(player->velocity.x) > 0.1f) {
-        player->state = STATE_RUNNING;
     } else {
-        player->state = STATE_IDLE;
+        // При приземлении
+        if (player->onGround && justLanded) {
+            player->stateDust = STATE_AFTER_JUMP_DUST;
+            dustPosition = (Vector2){
+                player->position.x - player->tileSize / 4, 
+                player->position.y - player->tileSize / 4};
+            justLanded = 0;
+        }
+        if (fabs(player->velocity.x) > 0.1f) {
+            player->state = STATE_RUNNING;
+        } else {
+            player->state = STATE_IDLE;
+        }
     }
 
     // Обновление анимаций
     frameCounter += GetFrameTime();
     frameDustCounter += GetFrameTime();
-
+    
     switch (player->state) {
         case STATE_ATTACKING:
             if (frameCounter >= frameSpeedAttack) {
@@ -300,12 +303,16 @@ void updatePlayer(Player *player, float speed, int **map, int tileSize) {
                 frameCounter = 0;
             }
             break;
+    }
+    
+    switch(player->stateDust) {
         case STATE_BEFORE_JUMP_DUST:
             if (frameDustCounter >= frameSpeedBeforeJump) {
                 player->dustFrame++;
                 if (player->dustFrame >= maxFrameBeforeAfterJump) {
                     player->dustFrame = 0;
                     player->state = STATE_JUMPING;
+                    player->stateDust = STATE_NO_DUST;
                 }
                 frameDustCounter = 0;
             }
@@ -316,9 +323,12 @@ void updatePlayer(Player *player, float speed, int **map, int tileSize) {
                 if (player->dustFrame >= maxFrameBeforeAfterJump) {
                     player->dustFrame = 0;
                     player->state = STATE_IDLE;
+                    player->stateDust = STATE_NO_DUST;
                 }
                 frameDustCounter = 0;
             }
+            break;
+        case STATE_NO_DUST:
             break;
     }
 }
@@ -346,6 +356,7 @@ void collision(Player *player, int **map, int dir, int tileSize) {
                 if (player->velocity.y > 0 && dir == 1) {
                     player->position.y = y * tileSize - player->tileSize - 0.1f;
                     player->onGround = 1;
+                    player->velocity.y = 0.1f;
                 }
                 if (player->velocity.y < 0 && dir == 1) {
                     player->position.y = y * tileSize + tileSize + 0.01f;
@@ -357,14 +368,14 @@ void collision(Player *player, int **map, int dir, int tileSize) {
 }
 
 void drawPlayer(Player *player) {
-    // отрисовка эффектов пыли
-    if (player->state == STATE_BEFORE_JUMP_DUST || player->state == STATE_AFTER_JUMP_DUST) {
+    // Отрисовка эффектов пыли
+    if (player->stateDust == STATE_BEFORE_JUMP_DUST || player->stateDust == STATE_AFTER_JUMP_DUST) {
         frameRectDust.x = (float)player->dustFrame * (float)textureBeforeJump.width / maxFrameBeforeAfterJump;
-        Texture2D dustTexture = player->state == STATE_BEFORE_JUMP_DUST ? textureBeforeJump : textureAfterJump;
+        Texture2D dustTexture = player->stateDust == STATE_BEFORE_JUMP_DUST ? textureBeforeJump : textureAfterJump;
         DrawTextureRec(dustTexture, frameRectDust, dustPosition, WHITE);
     }
 
-    // отрисовка игрока
+    // Отрисовка игрока
     frameRect.width = player->flip ? -fabs(frameRect.width) : fabs(frameRect.width);
     switch (player->state) {
         case STATE_ATTACKING:

@@ -10,7 +10,7 @@ Texture2D textureVaseDeath;
 Rectangle frameRectVaseDeath;
 
 int maxFrameVaseDeath = 5;
-const float frameSpeedDeath = 0.25f;
+const float frameSpeedDeath = 0.15f;
 
 void initializeVase(float x, float y, Vase *vase) {
     vase->position = (Vector2) {

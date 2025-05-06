@@ -39,10 +39,14 @@ typedef enum {
     STATE_JUMPING,
     STATE_FALLING,
     STATE_ATTACKING,
-    STATE_DEAD,
+    STATE_DEAD
+ } PlayerState;
+
+typedef enum {
+    STATE_NO_DUST,
     STATE_BEFORE_JUMP_DUST,
     STATE_AFTER_JUMP_DUST
-} PlayerState;
+} StateDust;
 
 
 typedef struct Player {
@@ -64,6 +68,7 @@ typedef struct Player {
     int dustAfterAnimationActive;
     int isAttack;
     PlayerState state;
+    StateDust stateDust;
 } Player;
 
 void initializePlayer(float x, float y, Player *player);
