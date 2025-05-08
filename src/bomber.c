@@ -31,7 +31,6 @@ void initializeBomber(float x, float y, Bomber *bomber) {
     if (textureBomberIdle.id == 0) {
         textureBomberIdle = LoadTexture("resource/enemies sprites/bomber goblin/bomber_goblin_idle_anim_strip_4.png");
         if (textureBomberIdle.id == 0) {
-            puts("Ошибка: не удалось загрузить текстуру idle bomber");
             exit(1);
         }
     }
@@ -39,7 +38,6 @@ void initializeBomber(float x, float y, Bomber *bomber) {
     if (textureBomberDeath.id == 0) {
         textureBomberDeath = LoadTexture("resource/enemies sprites/bomber goblin/bomber_goblin_death_anim_strip_6.png");
         if (textureBomberDeath.id == 0) {
-            puts("Ошибка: не удалось загрузить текстуру смерти bomber");
             exit(1);
         }
     }
@@ -47,7 +45,6 @@ void initializeBomber(float x, float y, Bomber *bomber) {
     if (textureBomberAttack.id == 0) {
         textureBomberAttack = LoadTexture("resource/enemies sprites/bomber goblin/bomber_goblin_attack_anim_strip_6.png");
         if (textureBomberAttack.id == 0) {
-            puts("Ошибка: не удалось загрузить текстуру атаки bomber");
             exit(1);
         }
     }

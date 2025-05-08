@@ -18,6 +18,7 @@ extern Texture2D textureAttack;
 extern Sound soundRun;
 extern Sound soundAttack;
 extern Sound soundJump;
+extern Sound soundLose;
 
 extern const int maxFrameRun;
 extern const int maxFrameIdle;

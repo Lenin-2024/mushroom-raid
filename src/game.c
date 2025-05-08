@@ -131,12 +131,14 @@ void game(int **map, Vector2 *playerStartPosition, int yMax, int xMax) {
 }
 
 void update(int **map, Camera2D *camera) {
+    /*
     printf("Count stone = %d\n", countStone);
     printf("Count vase = %d\n", countVase);
     printf("Count bomber = %d\n", countBomber);
     printf("Count money = %d\n", countMoney);
     printf("Count slime = %d\n\n", countSlime);
-
+    */
+   
     if (player.state == STATE_DEAD && player.stopDeathAnim == 1) {
         startGame = 0;
     }
@@ -237,23 +239,6 @@ void initialize(int **map, Vector2 *playerStartPosition, Camera2D *camera,
         player.position.y + (player.tileSize / 2)
     };
     
-    /*
-    if (arrayStone != NULL)
-
-    if (arrayBomber != NULL) {
-        free(arrayBomber);
-    }
-    if (arrayVase != NULL) {
-        free(arrayVase);
-    }
-    if (arraySlime != NULL) {
-        free(arraySlime);
-    }
-    if (arrayMoney != NULL) {
-        free(arrayMoney);
-    }
-    */
-
     countStone = 0;
     arrayStone = calloc(sizeof(Stone), countStone);
     countMoney = 0;

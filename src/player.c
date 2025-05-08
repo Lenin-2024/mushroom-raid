@@ -26,6 +26,7 @@ Texture2D textureAttack;
 Sound soundRun;
 Sound soundAttack;
 Sound soundJump;
+Sound soundLose;
 
 Rectangle frameRect;
 Rectangle frameRectDust;
@@ -117,6 +118,13 @@ void initializePlayer(float x, float y, Player *player) {
     }
 
     // Загрузка звуков
+    if (soundLose.stream.buffer == NULL) {
+        soundLose = LoadSound("resource/Sound/you_lose.mp3");
+        if (soundLose.stream.buffer == NULL) {
+            exit(1);
+        }
+    }
+
     if (soundRun.stream.buffer == NULL) {
         soundRun = LoadSound("resource/Sound/barrelstart.mp3");
         if (soundRun.stream.buffer == NULL) {
@@ -229,6 +237,7 @@ void updatePlayer(Player *player, float speed, int **map, int tileSize) {
     // Определение состояния игрока
     if (player->health <= 0) {
         player->state = STATE_DEAD;
+        PlaySound(soundLose);
     } else if (player->isAttack) {
         player->state = STATE_ATTACKING;
     } else if (!player->onGround) {
@@ -422,14 +431,29 @@ void drawPlayer(Player *player) {
 }
 
 void unloadPlayer() {
-    UnloadTexture(textureIdle);
-    UnloadTexture(textureRun);
-    UnloadTexture(textureFall);
-    UnloadTexture(textureJump);
-    UnloadTexture(textureAfterJump);
-    UnloadTexture(textureBeforeJump);
-    UnloadTexture(textureAttack);
+    if (textureIdle.id != 0) {
+        UnloadTexture(textureIdle);
+    }
+    if (textureRun.id != 0) {
+        UnloadTexture(textureRun);
+    }
+    if (textureFall.id != 0 ) {
+        UnloadTexture(textureFall);
+    }
+    if (textureJump.id != 0) {
+        UnloadTexture(textureJump);
+    }
+    if (textureAfterJump.id != 0) {
+        UnloadTexture(textureAfterJump);
+    }
+    if (textureBeforeJump.id != 0) {
+        UnloadTexture(textureBeforeJump);
+    }
+    if (textureAttack.id != 0) {
+        UnloadTexture(textureAttack);
+    }
     UnloadSound(soundRun);
     UnloadSound(soundAttack);
     UnloadSound(soundJump);
+    UnloadSound(soundLose);
 }

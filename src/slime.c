@@ -207,8 +207,14 @@ void drawSlime(Slime *slime) {
 }
 
 void unloadSlime() {
-    UnloadTexture(textureSlimeDeath);
-    UnloadTexture(textureSlimeIdle);
-    UnloadTexture(textureSlimeRun);
+    if (textureSlimeDeath.id != 0) {
+        UnloadTexture(textureSlimeDeath);
+    }
+    if (textureSlimeIdle.id != 0) {
+        UnloadTexture(textureSlimeIdle);
+    }
+    if (textureSlimeRun.id != 0) {
+        UnloadTexture(textureSlimeRun);
+    }
     UnloadSound(deathSound);
 }

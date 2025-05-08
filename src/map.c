@@ -114,8 +114,16 @@ void drawBackGround() {
 }
 
 void unloadTextureMap() {
-    UnloadTexture(midground);
-    UnloadTexture(foreground);
-    UnloadTexture(textureGround);
-    UnloadTexture(textureGrass);
+    if (midground.id != 0) {
+        UnloadTexture(midground);
+    }
+    if (foreground.id != 0) {
+        UnloadTexture(foreground);
+    }
+    if (textureGround.id != 0) {
+        UnloadTexture(textureGround);
+    }
+    if (textureGrass.id != 0) {
+        UnloadTexture(textureGrass);
+    }
 }
