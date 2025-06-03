@@ -25,3 +25,4 @@ $(TARGET): $(OBJS)
 clean:
 	make clean -C ./raylib
 	rm -f $(TARGET) $(OBJS)
+	rm -f tmp

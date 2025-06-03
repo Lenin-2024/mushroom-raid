@@ -17,16 +17,21 @@ const int backGroundSize = 16;
 int unlockLevel = 1;
 int startGame = 0;
 
+typedef struct {
+    Texture2D texture;
+    Vector2 position;
+} Door;
+
 void initTexture();
 void removeInactiveMoney();
 void removeInactiveSlime();
 void removeInactiveBomber();
-void unloadTextureAndMemory(int **map, int yMax);
-void initialize(int **map, Vector2 *playerStartPosition, Camera2D *camera, int yMax, int xMax, int initAll, char *nameMap);
-void draw(Camera2D *camera, int **map, int yMax, int xMax);
-void update(int **map, Camera2D *camera);
-void game(int **map, Vector2 *playerStartPosition, int yMax, int xMax);
-void drawMenu(int **map, Vector2 *playerStartPosition, int yMax, int xMax);
+void unloadTextureAndMemory(int **map, int yMax, Door *door);
+void initialize(int **map, Vector2 *playerStartPosition, Camera2D *camera, int yMax, int xMax, int initAll, char *nameMap, Door *door);
+void draw(Camera2D *camera, int **map, int yMax, int xMax, Door *door);
+void update(int **map, Camera2D *camera, Door *door);
+void game(int **map, Vector2 *playerStartPosition, int yMax, int xMax, Door *door);
+void drawMenu(int **map, Vector2 *playerStartPosition, int yMax, int xMax, Door *door);
 
 Texture2D textureHealthHud;
 Texture2D textureMenu;
@@ -62,27 +67,31 @@ Bomb *currentBomb = NULL;
 int main(int argc, char *argv[]) {
     int yMax = 15;
     int xMax = 25;
+    Door door;
+
     int **map = initializeMap(xMax, yMax);
 
     Vector2 playerStartPosition = { 0 };
-    initialize(map, &playerStartPosition, &camera, yMax, xMax, 1, "level_0.txt");
+    initialize(map, &playerStartPosition, &camera, yMax, xMax, 1, "level_0.txt", &door);
 
     while(!WindowShouldClose()) {
         if (startGame != 1) {
-            drawMenu(map, &playerStartPosition, yMax, xMax);
+            drawMenu(map, &playerStartPosition, yMax, xMax, &door);
         } else if (startGame == 1) {
-            game(map, &playerStartPosition, yMax, xMax);
+            game(map, &playerStartPosition, yMax, xMax, &door);
         }
     }
 
-    unloadTextureAndMemory(map, yMax);
+    unloadTextureAndMemory(map, yMax, &door);
     return 0;
 }
 
-void drawMenu(int **map, Vector2 *playerStartPosition, int yMax, int xMax) {
+void drawMenu(int **map, Vector2 *playerStartPosition, int yMax, int xMax, Door *door) {
+    /*
     if (IsMouseButtonPressed(1)) {
         unlockLevel++;
     }
+    */
 
     for (int i = 0; i < unlockLevel; i++) {
         Rectangle sourceMenu = { 
@@ -99,9 +108,9 @@ void drawMenu(int **map, Vector2 *playerStartPosition, int yMax, int xMax) {
             GetMouseY() < (sourceMenu.y + sourceMenu.height)) {
             startGame = 1;
             if (i == 0) {
-                initialize(map, playerStartPosition, &camera, yMax, xMax, 0, "level_0.txt");
+                initialize(map, playerStartPosition, &camera, yMax, xMax, 0, "level_0.txt", door);
             } else if (i == 1) {
-                initialize(map, playerStartPosition, &camera, yMax, xMax, 0, "level_1.txt");
+                initialize(map, playerStartPosition, &camera, yMax, xMax, 0, "level_1.txt", door);
             }
         }
     }
@@ -116,13 +125,13 @@ void drawMenu(int **map, Vector2 *playerStartPosition, int yMax, int xMax) {
     EndDrawing();
 }
 
-void game(int **map, Vector2 *playerStartPosition, int yMax, int xMax) {
+void game(int **map, Vector2 *playerStartPosition, int yMax, int xMax, Door *door) {
     if (gameOver == 0) {
         if (IsKeyPressed(KEY_Q)) {
             startGame = 0;
         }
-        update(map, &camera);
-        draw(&camera, map, yMax, xMax);
+        update(map, &camera, door);
+        draw(&camera, map, yMax, xMax, door);
     } else if (gameOver == 1) {
         player.position = *playerStartPosition;
         gameOver = 0;
@@ -130,16 +139,8 @@ void game(int **map, Vector2 *playerStartPosition, int yMax, int xMax) {
     }
 }
 
-void update(int **map, Camera2D *camera) {
-    /*
-    printf("Count stone = %d\n", countStone);
-    printf("Count vase = %d\n", countVase);
-    printf("Count bomber = %d\n", countBomber);
-    printf("Count money = %d\n", countMoney);
-    printf("Count slime = %d\n\n", countSlime);
-    */
-   
-    if (player.state == STATE_DEAD && player.stopDeathAnim == 1) {
+void update(int **map, Camera2D *camera, Door *door) {
+    if ((player.state == STATE_DEAD) && (player.stopDeathAnim == 1)) {
         startGame = 0;
     }
 
@@ -149,6 +150,16 @@ void update(int **map, Camera2D *camera) {
     };
 
     updatePlayer(&player, 1.5f, map, backGroundSize);
+
+    if ((player.position.x <= door->position.x + door->texture.width) &&
+        (player.position.x + player.tileSize >= door->position.x) &&
+        (player.position.y + player.tileSize >= door->position.y) &&
+        (player.position.y <= door->position.y + door->texture.height) &&
+        IsKeyPressed(KEY_UP)) {
+            unlockLevel++;
+            startGame = 0;
+    }
+    
     updateScrolling(player.position.x);
     
     for (int i = 0; i < countMoney; i++) {
@@ -192,12 +203,16 @@ void update(int **map, Camera2D *camera) {
     removeInactiveBomber();
 }
 
-void draw(Camera2D *camera, int **map, int yMax, int xMax) {
+void draw(Camera2D *camera, int **map, int yMax, int xMax, Door *door) {
     BeginDrawing();
         ClearBackground(RAYWHITE);
         drawBackGround();                
             BeginMode2D(*camera);
                 drawMap(map, xMax, yMax, backGroundSize);
+                
+                Rectangle sourceDoor = { door->position.x, door->position.y, door->texture.width, door->texture.height };
+                DrawTexturePro(door->texture, (Rectangle){0,0,24,24}, sourceDoor, (Vector2){0, 0}, 0.0f, WHITE);
+
                 for (int i = 0; i < countVase; i++) {
                     drawVase(&arrayVase[i]);
                 }
@@ -226,19 +241,20 @@ void draw(Camera2D *camera, int **map, int yMax, int xMax) {
             DrawTexturePro(textureHealthHud, healthRect, sourceHealth, (Vector2){0, 0}, 0.0f, WHITE);
         }
 
-        DrawFPS(565, 0);
-        DrawText(TextFormat("player.position = [%f, %f]", player.position.x, player.position.y), 1, 45, 20, BLACK);
+        //DrawFPS(565, 0);
+        //DrawText(TextFormat("player.position = [%f, %f]", player.position.x, player.position.y), 1, 45, 20, BLACK);
     EndDrawing();
 }
 
 void initialize(int **map, Vector2 *playerStartPosition, Camera2D *camera, 
-                int yMax, int xMax, int initAll, char *nameMap) {
+                int yMax, int xMax, int initAll, char *nameMap, Door *door) {
 
     camera->target = (Vector2){
         player.position.x + (player.tileSize / 2), 
         player.position.y + (player.tileSize / 2)
     };
     
+    door->position = (Vector2){-100, -100};
     countStone = 0;
     arrayStone = calloc(sizeof(Stone), countStone);
     countMoney = 0;
@@ -277,6 +293,11 @@ void initialize(int **map, Vector2 *playerStartPosition, Camera2D *camera,
         healthRect = (Rectangle){
             0, 0, textureHealthHud.width, textureHealthHud.height
         };
+        
+        door->texture = LoadTexture("resource/miscellaneous sprites/door.png");
+        if (door->texture.id == 0) {
+            exit(1);
+        }
     }
 
     loadMap(nameMap, map, xMax, yMax);
@@ -322,7 +343,6 @@ void initialize(int **map, Vector2 *playerStartPosition, Camera2D *camera,
             //----------------Слизень--------------------//
             if (map[y][x] == 21) {
                 countSlime++;
-                //printf("%d\n", countSlime);
                 Slime *slime = malloc(sizeof(Slime));
                 if (slime == NULL) {
                     countSlime--;
@@ -424,13 +444,18 @@ void initialize(int **map, Vector2 *playerStartPosition, Camera2D *camera,
                 }
                 map[y][x] = 0;
             }
+            //-------------------Дверь-------------------//
+            if (map[y][x] == 27) {
+                door->position = (Vector2){x * backGroundSize, y * backGroundSize - 8};
+            }
         }
     }
 }
 
-void unloadTextureAndMemory(int **map, int yMax) {
+void unloadTextureAndMemory(int **map, int yMax, Door *door) {
     UnloadTexture(textureHealthHud);
     UnloadTexture(textureMenu);
+    UnloadTexture(door->texture);
     unloadTextureMap();
     unloadPlayer();
     unloadMoney();

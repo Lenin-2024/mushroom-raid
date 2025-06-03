@@ -29,7 +29,8 @@ Texture2D textureGrass;
 Texture2D textureArrowsRight;
 Texture2D textureVase;
 Texture2D textureStone;
-Rectangle arrayGround[26];
+Texture2D textureDoor;
+Rectangle arrayGround[27];
 
 int main(int argc, char **argv) {    
     InitWindow(windowWidth, windowHeight, "TileMapEditor");
@@ -172,8 +173,10 @@ void initTexture() {
     if (textureStone.id == 0) {
         exit(1);
     }
-    
-    //printf("Width: %d, Height: %d\n", texturePlayer.width, texturePlayer.height);
+    textureDoor = LoadTexture("resource/miscellaneous sprites/door.png");
+    if (textureDoor.id == 0) {
+        exit(1);
+    }
 
     // загрузка текстур карты
     for (int y = 0; y < 3; y++) {
@@ -232,10 +235,13 @@ void drawMap() {
                 Rectangle sourceRect = { 0, 0, textureStone.width, textureStone.height };
                 Rectangle destRect = { position.x, position.y, backGroundSize, backGroundSize };
                 DrawTexturePro(textureStone, sourceRect, destRect, (Vector2){0, 0}, 0.0f, WHITE);
+            } else if (tileType == 27) { 
+                Rectangle sourceRect = { 0, 0, textureDoor.width, textureDoor.height };
+                Rectangle destRect = { position.x, position.y, backGroundSize, backGroundSize };
+                DrawTexturePro(textureDoor, sourceRect, destRect, (Vector2){0, 0}, 0.0f, WHITE);
             } else if (tileType > 0 && tileType <= sizeof(arrayGround) / sizeof(arrayGround[0])) {
                 DrawTextureRec(textureGround, arrayGround[tileType - 1], position, WHITE);
-            }
-            else {
+            } else {
                 DrawRectangle(position.x, position.y, backGroundSize, backGroundSize, RED);
             }
         }
@@ -285,6 +291,10 @@ void drawTextureSelector() {
             Rectangle sourceRect = { 0, 0, textureStone.width, textureStone.height };
             Rectangle destRect = { position.x, position.y, backGroundSize * scale, backGroundSize * scale };
             DrawTexturePro(textureStone, sourceRect, destRect, (Vector2){0, 0}, 0.0f, WHITE);
+        } else if (i == 26) { 
+            Rectangle sourceRect = { 0, 0, textureDoor.width, textureDoor.height };
+            Rectangle destRect = { position.x, position.y, backGroundSize * scale, backGroundSize * scale };
+            DrawTexturePro(textureDoor, sourceRect, destRect, (Vector2){0, 0}, 0.0f, WHITE);
         } else {
             Rectangle sourceRect = arrayGround[i];
             Rectangle destRect = { position.x, position.y, backGroundSize * scale, backGroundSize * scale };
