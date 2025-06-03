@@ -16,6 +16,9 @@ const int backGroundSize = 16;
 
 int unlockLevel = 1;
 int startGame = 0;
+int stratAnimCircle = 0;
+float radiusCircle = 0.f;
+float speedCircle = 6.f;
 
 typedef struct {
     Texture2D texture;
@@ -77,6 +80,9 @@ int main(int argc, char *argv[]) {
     while(!WindowShouldClose()) {
         if (startGame != 1) {
             drawMenu(map, &playerStartPosition, yMax, xMax, &door);
+            if (radiusCircle >= 0) {
+                radiusCircle -= speedCircle;
+            }
         } else if (startGame == 1) {
             game(map, &playerStartPosition, yMax, xMax, &door);
         }
@@ -87,12 +93,6 @@ int main(int argc, char *argv[]) {
 }
 
 void drawMenu(int **map, Vector2 *playerStartPosition, int yMax, int xMax, Door *door) {
-    /*
-    if (IsMouseButtonPressed(1)) {
-        unlockLevel++;
-    }
-    */
-
     for (int i = 0; i < unlockLevel; i++) {
         Rectangle sourceMenu = { 
             i * 32 * 2.2f + windowWidth / 2 - (32 * unlockLevel), 
@@ -122,6 +122,8 @@ void drawMenu(int **map, Vector2 *playerStartPosition, int yMax, int xMax, Door 
             Rectangle sourceMenu = { i * 32 * 2.2f + windowWidth / 2 - (32 * unlockLevel), windowHeight / 2 - 32, textureMenu.width / 15 * 2.0f, textureMenu.height / 10 * 2.0f };
             DrawTexturePro(textureMenu, (Rectangle){12 * 32, i * 32, 32, 32}, sourceMenu, (Vector2){0, 0}, 0.0f, WHITE);
         }
+
+        DrawCircle(windowWidth / 2, windowHeight / 2, radiusCircle, BLACK);
     EndDrawing();
 }
 
@@ -135,6 +137,7 @@ void game(int **map, Vector2 *playerStartPosition, int yMax, int xMax, Door *doo
     } else if (gameOver == 1) {
         player.position = *playerStartPosition;
         gameOver = 0;
+        
         startGame = 1;
     }
 }
@@ -149,58 +152,69 @@ void update(int **map, Camera2D *camera, Door *door) {
         player.position.y + (player.tileSize / 2)
     };
 
-    updatePlayer(&player, 1.5f, map, backGroundSize);
-
     if ((player.position.x <= door->position.x + door->texture.width) &&
         (player.position.x + player.tileSize >= door->position.x) &&
         (player.position.y + player.tileSize >= door->position.y) &&
         (player.position.y <= door->position.y + door->texture.height) &&
         IsKeyPressed(KEY_UP)) {
             unlockLevel++;
+            stratAnimCircle = 1;
+            //startGame = 0;
+    }
+
+    if (stratAnimCircle == 0) {
+        updatePlayer(&player, 1.5f, map, backGroundSize);
+
+        updateScrolling(player.position.x);
+        
+        for (int i = 0; i < countMoney; i++) {
+            updateMoney(&arrayMoney[i], player.position.x, player.position.y, 14);
+        }
+        removeInactiveMoney();
+
+        for (int i = 0; i < countSlime; i++) {
+            updateSlime(&arraySlime[i], &player, map);
+        }
+        removeInactiveSlime();
+        
+        for (int i = 0; i < countVase; i++) {
+            updateVase(&player, &arrayVase[i]);
+        }
+        
+        for (int i = 0; i < countStone; i++) {
+            updateStone(&player, map, &arrayStone[i]);
+        }
+
+        for (int i = 0; i < sizeof(arrayBomb) / sizeof(arrayBomb[0]); i++) {
+            if (arrayBomb[i].isActivated == 0) {
+                currentBomb = &arrayBomb[i];
+                break;
+            }
+        }
+
+        for (int i = 0; i < sizeof(arrayBomb) / sizeof(arrayBomb[0]); i++) {
+            if (arrayBomb[i].isActivated == 1) {
+                updateBomb(&arrayBomb[i], &player, map);
+            }
+        }
+
+        for (int i = 0; i < countBomber; i++) {
+            updateBomber(&arrayBomber[i], &player, map);
+            if (arrayBomber[i].isAttack == 1) {
+                initializeBomb(arrayBomber[i].position.x, arrayBomber[i].position.y, currentBomb, player.position.x, player.position.y);
+                arrayBomber[i].isAttack = 0;
+            }
+        }
+        removeInactiveBomber();
+    } else if (stratAnimCircle == 1) {
+        if (radiusCircle <= windowHeight) {
+            radiusCircle += speedCircle;
+        } else {
+            stratAnimCircle = 0;
             startGame = 0;
-    }
-    
-    updateScrolling(player.position.x);
-    
-    for (int i = 0; i < countMoney; i++) {
-        updateMoney(&arrayMoney[i], player.position.x, player.position.y, 14);
-    }
-    removeInactiveMoney();
-
-    for (int i = 0; i < countSlime; i++) {
-        updateSlime(&arraySlime[i], &player, map);
-    }
-    removeInactiveSlime();
-    
-    for (int i = 0; i < countVase; i++) {
-        updateVase(&player, &arrayVase[i]);
-    }
-    
-    for (int i = 0; i < countStone; i++) {
-        updateStone(&player, map, &arrayStone[i]);
-    }
-
-    for (int i = 0; i < sizeof(arrayBomb) / sizeof(arrayBomb[0]); i++) {
-        if (arrayBomb[i].isActivated == 0) {
-            currentBomb = &arrayBomb[i];
-            break;
         }
-    }
 
-    for (int i = 0; i < sizeof(arrayBomb) / sizeof(arrayBomb[0]); i++) {
-        if (arrayBomb[i].isActivated == 1) {
-            updateBomb(&arrayBomb[i], &player, map);
-        }
     }
-
-    for (int i = 0; i < countBomber; i++) {
-        updateBomber(&arrayBomber[i], &player, map);
-        if (arrayBomber[i].isAttack == 1) {
-            initializeBomb(arrayBomber[i].position.x, arrayBomber[i].position.y, currentBomb, player.position.x, player.position.y);
-            arrayBomber[i].isAttack = 0;
-        }
-    }
-    removeInactiveBomber();
 }
 
 void draw(Camera2D *camera, int **map, int yMax, int xMax, Door *door) {
@@ -241,8 +255,9 @@ void draw(Camera2D *camera, int **map, int yMax, int xMax, Door *door) {
             DrawTexturePro(textureHealthHud, healthRect, sourceHealth, (Vector2){0, 0}, 0.0f, WHITE);
         }
 
+        DrawCircle(windowWidth / 2, windowHeight / 2, radiusCircle, BLACK);
+
         //DrawFPS(565, 0);
-        //DrawText(TextFormat("player.position = [%f, %f]", player.position.x, player.position.y), 1, 45, 20, BLACK);
     EndDrawing();
 }
 
