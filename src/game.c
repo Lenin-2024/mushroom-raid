@@ -144,7 +144,8 @@ void game(int **map, Vector2 *playerStartPosition, int yMax, int xMax, Door *doo
 
 void update(int **map, Camera2D *camera, Door *door) {
     if ((player.state == STATE_DEAD) && (player.stopDeathAnim == 1)) {
-        startGame = 0;
+        //startGame = 0;
+        stratAnimCircle = 1;
     }
 
     camera->target = (Vector2) {
@@ -159,7 +160,6 @@ void update(int **map, Camera2D *camera, Door *door) {
         IsKeyPressed(KEY_UP)) {
             unlockLevel++;
             stratAnimCircle = 1;
-            //startGame = 0;
     }
 
     if (stratAnimCircle == 0) {

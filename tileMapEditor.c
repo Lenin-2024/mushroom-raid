@@ -30,7 +30,8 @@ Texture2D textureArrowsRight;
 Texture2D textureVase;
 Texture2D textureStone;
 Texture2D textureDoor;
-Rectangle arrayGround[27];
+Texture2D textureSpikesTrap;
+Rectangle arrayGround[28];
 
 int main(int argc, char **argv) {    
     InitWindow(windowWidth, windowHeight, "TileMapEditor");
@@ -177,6 +178,10 @@ void initTexture() {
     if (textureDoor.id == 0) {
         exit(1);
     }
+    textureSpikesTrap = LoadTexture("resource/miscellaneous sprites/spikes.png");
+    if (textureSpikesTrap.id == 0) {
+        exit(1);
+    }
 
     // загрузка текстур карты
     for (int y = 0; y < 3; y++) {
@@ -239,6 +244,10 @@ void drawMap() {
                 Rectangle sourceRect = { 0, 0, textureDoor.width, textureDoor.height };
                 Rectangle destRect = { position.x, position.y, backGroundSize, backGroundSize };
                 DrawTexturePro(textureDoor, sourceRect, destRect, (Vector2){0, 0}, 0.0f, WHITE);
+            } else if (tileType == 28) {
+                Rectangle sourceRect = { 0, 0, textureSpikesTrap.width, -textureSpikesTrap.height };
+                Rectangle destRect = { position.x, position.y, backGroundSize, backGroundSize };
+                DrawTexturePro(textureSpikesTrap, sourceRect, destRect, (Vector2){0, 0}, 0.0f, WHITE);
             } else if (tileType > 0 && tileType <= sizeof(arrayGround) / sizeof(arrayGround[0])) {
                 DrawTextureRec(textureGround, arrayGround[tileType - 1], position, WHITE);
             } else {
@@ -295,6 +304,10 @@ void drawTextureSelector() {
             Rectangle sourceRect = { 0, 0, textureDoor.width, textureDoor.height };
             Rectangle destRect = { position.x, position.y, backGroundSize * scale, backGroundSize * scale };
             DrawTexturePro(textureDoor, sourceRect, destRect, (Vector2){0, 0}, 0.0f, WHITE);
+        } else if (i == 27) {
+            Rectangle sourceRect = { 0, 0, textureSpikesTrap.width, -textureSpikesTrap.height };
+            Rectangle destRect = { position.x, position.y, backGroundSize * scale, backGroundSize * scale };
+            DrawTexturePro(textureSpikesTrap, sourceRect, destRect, (Vector2){0, 0}, 0.0f, WHITE);
         } else {
             Rectangle sourceRect = arrayGround[i];
             Rectangle destRect = { position.x, position.y, backGroundSize * scale, backGroundSize * scale };

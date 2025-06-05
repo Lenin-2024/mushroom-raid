@@ -371,6 +371,20 @@ void collision(Player *player, int **map, int dir, int tileSize) {
                     player->position.y = y * tileSize + tileSize + 0.01f;
                     player->velocity.y = 0;
                 }
+            } else if (map[y][x] == 28) {  
+                if (player->velocity.x > 0 && dir == 0) {
+                    player->position.x = x * tileSize - player->tileSize - 0.1f;
+                }
+                if (player->velocity.x < 0 && dir == 0) {
+                    player->position.x = x * tileSize + tileSize + 0.1f;
+                    player->velocity.x += 16.0f;
+                }
+
+                if (dir == 1) {
+                    player->position.y = y * tileSize - player->tileSize - 0.1f;
+                    player->velocity.y -= 2.5f;
+                    player->health -= 1;
+                }
             }
         }
     }

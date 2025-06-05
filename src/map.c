@@ -8,6 +8,7 @@ Texture2D textureGround;
 Texture2D midground;
 Texture2D foreground;
 Texture2D textureArrowsRight;
+Texture2D textureSpikesTrap;
 
 float midScrollSpeed = 0.1f;   // Скорость среднего плана
 float foreScrollSpeed = 0.2f;  // Скорость переднего плана
@@ -38,6 +39,11 @@ void initTexture(int backGroundSize) {
     if (textureArrowsRight.id == 0) {
         exit(1);
     }
+    textureSpikesTrap = LoadTexture("resource/miscellaneous sprites/spikes.png");
+    if (textureSpikesTrap.id == 0) {
+        exit(1);
+    }
+    textureSpikesTrap.height = -textureSpikesTrap.height;
 
     for (int y = 0; y < 3; y++) {
         for (int x = 0; x < 6; x++) {
@@ -79,9 +85,13 @@ void drawMap(int **map, int xMax, int yMax, int backGroundSize) {
                 position.y += 8;
                 DrawTextureRec(textureGrass, (Rectangle){0, 0, 16, 8}, position, WHITE);
             }
-            
+
             if (tileType == 24) {
                 DrawTextureRec(textureArrowsRight, (Rectangle){0, 0, 16, 16}, position, WHITE);
+            }
+
+            if (tileType == 28) {
+                DrawTextureRec(textureSpikesTrap, (Rectangle){0, 0, 16, 16}, position, WHITE);
             }
         }
     }
