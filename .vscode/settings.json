@@ -5,7 +5,8 @@
         "bomber.h": "c",
         "player.h": "c",
         "math.h": "c",
-        "raylib.h": "c"
+        "raylib.h": "c",
+        "spike.h": "c"
     },
     "cmake.sourceDirectory": "/home/misha/Рабочий стол/myC/test/raylib/src"
 }

@@ -9,6 +9,7 @@
 #include "bomb.h"
 #include "vase.h"
 #include "stone.h"
+#include "spike.h"
 
 const int windowWidth = 640;
 const int windowHeight = 480;
@@ -63,6 +64,9 @@ Vase *arrayVase = NULL;
 
 int countStone = 0;
 Stone *arrayStone = NULL;
+
+int countSpike = 0;
+Spike *arraySpike = NULL;
 
 Bomb arrayBomb[10] = {0};
 Bomb *currentBomb = NULL;
@@ -185,6 +189,10 @@ void update(int **map, Camera2D *camera, Door *door) {
             updateStone(&player, map, &arrayStone[i]);
         }
 
+        for (int i = 0; i < countSpike; i++) {
+            updateSpike(&arraySpike[i], &player);
+        }
+
         for (int i = 0; i < sizeof(arrayBomb) / sizeof(arrayBomb[0]); i++) {
             if (arrayBomb[i].isActivated == 0) {
                 currentBomb = &arrayBomb[i];
@@ -213,7 +221,6 @@ void update(int **map, Camera2D *camera, Door *door) {
             stratAnimCircle = 0;
             startGame = 0;
         }
-
     }
 }
 
@@ -242,6 +249,9 @@ void draw(Camera2D *camera, int **map, int yMax, int xMax, Door *door) {
                 for (int i = 0; i < countSlime; i++) {
                     drawSlime(&arraySlime[i]);
                 }
+                for (int i = 0; i < countSpike; i++) {
+                    drawSpike(&arraySpike[i]);
+                }
                 for (int i = 0; i < sizeof(arrayBomb) / sizeof(arrayBomb[0]); i++) {                  
                     if (arrayBomb[i].isActivated == 1) {
                         drawBomb(&arrayBomb[i]);
@@ -257,7 +267,7 @@ void draw(Camera2D *camera, int **map, int yMax, int xMax, Door *door) {
 
         DrawCircle(windowWidth / 2, windowHeight / 2, radiusCircle, BLACK);
 
-        //DrawFPS(565, 0);
+        DrawFPS(565, 0);
     EndDrawing();
 }
 
@@ -280,6 +290,8 @@ void initialize(int **map, Vector2 *playerStartPosition, Camera2D *camera,
     arrayBomber = calloc(sizeof(Bomber), countBomber);
     countVase = 0;
     arrayVase = calloc(sizeof(Vase), countVase);
+    countSpike = 0;
+    arraySpike = calloc(sizeof(Spike), countSpike);
 
     for (int i = 0; i < sizeof(arrayBomb)/sizeof(arrayBomb[0]); i++) {
         arrayBomb[i].isActivated = 0;
@@ -463,6 +475,32 @@ void initialize(int **map, Vector2 *playerStartPosition, Camera2D *camera,
             if (map[y][x] == 27) {
                 door->position = (Vector2){x * backGroundSize, y * backGroundSize - 8};
             }
+            //----------------ловушки--------------------//
+            if (map[y][x] == 28) {
+                countSpike++;
+                Spike *spike = malloc(sizeof(Spike));
+                if (spike == NULL) {
+                    countSpike--;
+                    continue;
+                }
+
+                Stone *temp = realloc(arraySpike, sizeof(Spike) * countSpike);
+                if (temp == NULL) {
+                    free(spike);
+                    countSpike--;
+                    continue;
+                } else {
+                    arraySpike = temp;
+                }
+
+                initializeSpike(spike, x * backGroundSize, y * backGroundSize);
+                if (countSpike != 0) {
+                    arraySpike[countSpike - 1] = *spike;
+                } else {
+                    arraySpike[0] = *spike;
+                }
+                map[y][x] = 0;
+            }
         }
     }
 }
@@ -477,6 +515,7 @@ void unloadTextureAndMemory(int **map, int yMax, Door *door) {
     unloadSlime();
     unloadBomber();
     unloadStone();
+    unloadSpike();
 
     CloseAudioDevice();
     
@@ -489,6 +528,9 @@ void unloadTextureAndMemory(int **map, int yMax, Door *door) {
     free(arrayBomber);
     free(arrayVase);
     free(arrayStone);
+
+    free(arraySpike);
+
     CloseWindow();
 }
 
@@ -548,7 +590,6 @@ void removeInactiveBomber() {
     }
 
     free(arrayBomber);
-
     arrayBomber = newArrayBomber;
     countBomber = newCountBomber;
 }
